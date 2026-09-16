@@ -1,0 +1,517 @@
+:root {
+  /* Type — loaded via <link> to Google Fonts in the root layout */
+  --font-display: "Libre Caslon Display";
+  --font-body: "Archivo";
+
+  /* Brand palette — ivory paper & ink, madder-red accent, antique gold */
+  --paper: #f3efe7;
+  --ink: #17130f;
+  --madder: #8e3a2b;
+  --gold: #b9946a;
+  --line: #d8d1c4;
+  --line-soft: #e2dbcd;
+  --muted: #6b6259;
+  --muted-2: #4a423a;
+  --card: #e7e0d2;
+  --card-2: #eae4d7;
+  /* On the dark (ink) sections */
+  --on-ink: #efe9dd;
+  --on-ink-2: #c4bbae;
+  --on-ink-dim: #8a8074;
+  --on-ink-line: #2b231c;
+  --on-ink-line-2: #3a322a;
+  --gold-warm: #d9cbb5;
+
+  --maxw: 1400px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body), Archivo, system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+a:hover {
+  color: var(--madder);
+}
+
+input,
+textarea,
+select,
+button {
+  font-family: var(--font-body), Archivo, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--madder);
+  color: var(--paper);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+}
+
+.serif {
+  font-family: var(--font-display), "Libre Caslon Display", Georgia, serif;
+}
+
+/* ---------- layout helpers ---------- */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-left: clamp(20px, 3vw, 32px);
+  padding-right: clamp(20px, 3vw, 32px);
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--madder);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+main {
+  flex: 1;
+}
+
+/* ---------- announcement bar ---------- */
+.announce {
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 9px 20px;
+  font-weight: 400;
+}
+
+/* ---------- header ---------- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.header__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 20px clamp(16px, 2.5vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(12px, 2vw, 24px);
+  flex-wrap: wrap;
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.brand__name {
+  font-family: var(--font-display), "Libre Caslon Display", serif;
+  font-size: clamp(20px, 2vw, 27px);
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+.brand__sub {
+  font-size: 9px;
+  letter-spacing: 0.36em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.nav {
+  display: flex;
+  gap: clamp(14px, 2vw, 34px);
+  font-size: clamp(10px, 1vw, 12px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+.header__util {
+  display: flex;
+  gap: clamp(12px, 1.6vw, 22px);
+  font-size: clamp(10px, 1vw, 12px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  min-width: 0;
+}
+.header__util a,
+.header__util .linklike {
+  color: var(--muted);
+}
+.header__util a:hover,
+.header__util .linklike:hover {
+  color: var(--madder);
+}
+.linklike {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-block;
+  padding: 17px 34px;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+}
+.btn--solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn--solid:hover {
+  background: var(--madder);
+  color: var(--paper);
+}
+.btn--outline {
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+.btn--outline:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn--block {
+  display: block;
+  width: 100%;
+  padding: 19px;
+  letter-spacing: 0.18em;
+}
+
+/* ---------- section headings ---------- */
+.section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(56px, 7vw, 92px) clamp(20px, 3vw, 32px);
+  width: 100%;
+}
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 22px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+.section-head h2 {
+  font-family: var(--font-display), "Libre Caslon Display", serif;
+  font-size: clamp(28px, 3vw, 38px);
+  margin: 0;
+  font-weight: 400;
+}
+.section-head__link {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--madder);
+  border-bottom: 1px solid #c8a9a0;
+  padding-bottom: 3px;
+}
+
+/* ---------- product / journal cards ---------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card__frame {
+  position: relative;
+  background: var(--card);
+}
+.card__tag {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--madder);
+  margin-bottom: 8px;
+}
+.card__name {
+  font-family: var(--font-display), "Libre Caslon Display", serif;
+  font-size: 21px;
+  margin-bottom: 5px;
+}
+.card__meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 9px;
+}
+.card__price {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.tag-reserved {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  pointer-events: none;
+}
+
+/* ---------- image placeholder ---------- */
+.imgslot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  background: var(--card);
+  color: var(--muted);
+  overflow: hidden;
+}
+.imgslot::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1.5px dashed currentColor;
+  opacity: 0.28;
+  pointer-events: none;
+}
+.imgslot__cap {
+  position: relative;
+  max-width: 90%;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- footer ---------- */
+.footer {
+  background: var(--ink);
+  color: var(--on-ink-2);
+}
+.footer__cols {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 80px clamp(20px, 3vw, 32px) 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: clamp(36px, 4vw, 56px);
+  width: 100%;
+}
+.footer__brand {
+  font-family: var(--font-display), "Libre Caslon Display", serif;
+  font-size: 24px;
+  letter-spacing: 0.22em;
+  color: var(--on-ink);
+  margin-bottom: 8px;
+}
+.footer__brandsub {
+  font-size: 9px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--on-ink-dim);
+  margin-bottom: 28px;
+}
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.footer__coltitle {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--on-ink-dim);
+  margin-bottom: 6px;
+}
+.footer__col a {
+  color: var(--on-ink-2);
+  font-size: 14px;
+}
+.footer__col a:hover {
+  color: var(--on-ink);
+}
+.footer__legal {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 26px clamp(20px, 3vw, 32px) 48px;
+  border-top: 1px solid var(--on-ink-line);
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--on-ink-dim);
+  width: 100%;
+}
+.footer__legal a {
+  color: var(--on-ink-dim);
+}
+.footer__legal a:hover {
+  color: var(--on-ink);
+}
+.footer__links {
+  display: flex;
+  gap: 26px;
+}
+.newsletter {
+  display: flex;
+  gap: 0;
+  max-width: 340px;
+}
+.newsletter input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--on-ink-line-2);
+  border-right: none;
+  background: transparent;
+  padding: 13px 14px;
+  font-size: 14px;
+  color: var(--on-ink);
+  outline: none;
+}
+.newsletter button {
+  background: var(--on-ink);
+  color: var(--ink);
+  padding: 13px 20px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+.newsletter button:hover {
+  background: var(--gold);
+  color: var(--ink);
+}
+.footer__note {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0 0 24px;
+  max-width: 34ch;
+}
+
+/* ---------- forms ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.field > span {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field input,
+.field select {
+  border: none;
+  border-bottom: 1px solid #c4bba8;
+  background: transparent;
+  padding: 9px 0;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  border-radius: 0;
+}
+.field textarea {
+  border: 1px solid #c4bba8;
+  background: transparent;
+  padding: 14px;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--ink);
+}
+
+.filter-tab {
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink);
+}
+.filter-tab:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.filter-tab[data-active="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.enquiry-card {
+  background: var(--card-2);
+  padding: clamp(32px, 4vw, 52px) clamp(24px, 4vw, 48px);
+}
+.enquiry-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 20px;
+}
+
+.form-ok {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--madder);
+  letter-spacing: 0.02em;
+}
+
+/* keeps grids from forcing horizontal scroll on narrow screens */
+img {
+  max-width: 100%;
+}

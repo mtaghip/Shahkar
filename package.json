@@ -1,0 +1,23 @@
+{
+  "name": "shahkar-carpets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shahkar Carpets — a luxury handmade carpet e-commerce site for the UK market.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "15.5.25",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.6.3"
+  }
+}
