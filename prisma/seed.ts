@@ -28,6 +28,14 @@ async function main() {
   console.log(`✓ Admin user ready: ${email}  (password: ${password})`);
 
   // ---- products ----
+  // Only seed the catalogue when it's empty, so re-running the seed (e.g. on
+  // every Vercel deploy) never clobbers products the shop owner has edited.
+  const existingProducts = await prisma.product.count();
+  if (existingProducts > 0) {
+    console.log(`• ${existingProducts} products already present — skipping catalogue seed`);
+    return;
+  }
+
   for (const p of SEED_PRODUCTS) {
     await prisma.product.upsert({
       where: { slug: p.slug },
