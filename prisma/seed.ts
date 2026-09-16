@@ -14,18 +14,19 @@ async function main() {
   // ---- admin user ----
   const email = process.env.ADMIN_EMAIL || "admin@shahkarcarpets.co.uk";
   const password = process.env.ADMIN_PASSWORD || "shahkar-admin";
+  const passwordHash = hashPassword(password);
 
   await prisma.user.upsert({
     where: { email },
-    update: { role: "admin" },
+    update: { role: "admin", passwordHash },
     create: {
       email,
       name: "Shahkar Admin",
       role: "admin",
-      passwordHash: hashPassword(password),
+      passwordHash,
     },
   });
-  console.log(`✓ Admin user ready: ${email}  (password: ${password})`);
+  console.log(`✓ Admin user ready: ${email}`);
 
   // ---- products ----
   // Only seed the catalogue when it's empty, so re-running the seed (e.g. on
