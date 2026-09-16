@@ -8,7 +8,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Vercel's Neon integration is connected with the DATABASE1 prefix.
+  // Use its direct URL so migrations and runtime queries share the same database.
+  url      = env("DATABASE1_DATABASE_URL_UNPOOLED")
 }
 
 model User {
