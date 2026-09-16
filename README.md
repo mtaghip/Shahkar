@@ -7,18 +7,39 @@ collectable pieces alongside contemporary work woven to order. Built from the
 with an admin, customer accounts, cart and checkout.
 
 **Stack:** Next.js 15 (App Router, Server Actions) · React 19 · TypeScript ·
-Prisma + **SQLite** · plain CSS with design tokens. No external services — the
-database is a local SQLite file, so it runs anywhere.
+Prisma + **PostgreSQL** · plain CSS with design tokens.
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env      # then set AUTH_SECRET (openssl rand -base64 32)
-npm run db:push           # create the SQLite schema
+cp .env.example .env      # set DATABASE_URL + AUTH_SECRET (openssl rand -base64 32)
+npm run db:migrate        # apply migrations to your Postgres database
 npm run db:seed           # load the 9 carpets + the admin account
 npm run dev               # http://localhost:3000
 ```
+
+### A local Postgres
+
+Point `DATABASE_URL` at any Postgres instance. To spin one up locally:
+
+```bash
+sudo service postgresql start
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'devpassword';"
+sudo -u postgres psql -c "CREATE DATABASE shahkar;"
+```
+
+That matches the example URL:
+`postgresql://postgres:devpassword@localhost:5432/shahkar?schema=public`
+
+### Database scripts
+
+| Script | Does |
+| --- | --- |
+| `npm run db:migrate` | Create/apply migrations in development (`prisma migrate dev`) |
+| `npm run db:deploy` | Apply committed migrations in production (`prisma migrate deploy`) |
+| `npm run db:seed` | Load the catalogue + admin account |
+| `npm run db:reset` | Drop, re-migrate and re-seed (destructive) |
 
 Production build:
 
@@ -83,8 +104,9 @@ src/
 - **Images** are labelled drop-in placeholders (`ImageSlot`) — replace with real
   photography (`next/image`) when available; each carpet carries an image
   caption managed in the admin.
-- **SQLite note:** serverless hosts (e.g. Vercel) don't persist file writes, so
-  for production deploy against hosted Postgres — switch the Prisma
-  `datasource` provider to `postgresql` and point `DATABASE_URL` at it.
+- **Deploying:** create a hosted Postgres database (Neon, Supabase, or Vercel
+  Postgres all work), point `DATABASE_URL` at it, and run `npm run db:deploy`
+  then `npm run db:seed` once against it. Set `AUTH_SECRET` to a fresh
+  `openssl rand -base64 32` value in production.
 - Copy (est. 1974, the Stow-on-the-Wold showroom, the grandfather-in-Tehran
   story) is placeholder narrative from the design brief.

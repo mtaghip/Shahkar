@@ -1,11 +1,11 @@
-// Shahkar Carpets — data model (SQLite, via Prisma)
+// Shahkar Carpets — data model (PostgreSQL, via Prisma)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
