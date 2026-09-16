@@ -1,0 +1,66 @@
+// Shahkar Carpets — data model (SQLite, via Prisma)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         String   @default("customer") // "customer" | "admin"
+  createdAt    DateTime @default(now())
+  orders       Order[]
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  slug         String      @unique
+  name         String
+  tag          String // e.g. "Antique · c. 1910"
+  meta         String // e.g. "3.62 × 2.71 m · wool on cotton"
+  pricePence   Int // stored in pence
+  priceFrom    Boolean     @default(false) // renders "from £x"
+  category     String // "antique" | "contemporary"
+  description  String
+  provenance   String
+  imageCaption String // placeholder caption / alt text for the main photo
+  stock        Int         @default(1)
+  reserved     Boolean     @default(false)
+  featured     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  reference  String      @unique
+  email      String
+  name       String
+  phone      String?
+  address    String
+  totalPence Int
+  status     String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | CANCELLED
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id])
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  name       String // snapshot of the product name at purchase time
+  pricePence Int // snapshot of unit price
+  qty        Int     @default(1)
+}

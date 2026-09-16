@@ -1,9 +1,9 @@
 import Link from "next/link";
 import ImageSlot from "@/components/ImageSlot";
 import ProductCard from "@/components/ProductCard";
-import { CATALOGUE } from "@/lib/catalogue";
+import { getFeatured } from "@/lib/products";
 
-const featured = [CATALOGUE[0], CATALOGUE[5], CATALOGUE[6]];
+export const dynamic = "force-dynamic";
 
 const homeJournal = [
   {
@@ -19,7 +19,8 @@ const homeJournal = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featured = await getFeatured(3);
   return (
     <>
       {/* ============ HERO ============ */}
@@ -142,8 +143,8 @@ export default function HomePage() {
             gap: 40,
           }}
         >
-          {featured.map((c) => (
-            <ProductCard key={c.id} carpet={c} />
+          {featured.map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>

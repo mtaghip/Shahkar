@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CartProvider } from "@/components/CartContext";
 
 export const metadata: Metadata = {
   title: "Shahkar Carpets — Antique & contemporary handmade carpets",
@@ -30,16 +29,14 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <CartProvider>
-          <div className="page">
-            <div className="announce">
-              Complimentary worldwide shipping &amp; 14-day home trial
-            </div>
-            <Header />
-            <main>{children}</main>
-            <Footer />
+        <div className="page">
+          <div className="announce">
+            Complimentary worldwide shipping &amp; 14-day home trial
           </div>
-        </CartProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </div>
       </body>
     </html>
   );

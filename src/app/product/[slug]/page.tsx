@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ImageSlot from "@/components/ImageSlot";
 import AddToBagButton from "@/components/AddToBagButton";
-import { CATALOGUE, SPECS, getCarpet } from "@/lib/catalogue";
+import { SPECS } from "@/lib/catalogue";
+import { getBySlug } from "@/lib/products";
+import { formatPrice } from "@/lib/money";
 
-export function generateStaticParams() {
-  return CATALOGUE.map((c) => ({ slug: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({
   params,
@@ -14,8 +14,10 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const carpet = getCarpet(slug);
-  if (!carpet) notFound();
+  const product = await getBySlug(slug);
+  if (!product) notFound();
+
+  const soldOut = product.reserved || product.stock <= 0;
 
   return (
     <>
@@ -37,7 +39,8 @@ export default async function ProductPage({
         <Link href="/collection" style={{ color: "var(--muted)" }}>
           Collection
         </Link>{" "}
-        &nbsp;/&nbsp; <span style={{ color: "var(--ink)" }}>{carpet.name}</span>
+        &nbsp;/&nbsp;{" "}
+        <span style={{ color: "var(--ink)" }}>{product.name}</span>
       </div>
 
       <section
@@ -49,7 +52,9 @@ export default async function ProductPage({
       >
         {/* images */}
         <div style={{ borderRight: "1px solid var(--line)" }}>
-          <ImageSlot caption={carpet.ph} ratio="1/1" />
+          <ImageSlot caption={product.imageCaption} ratio="1/1">
+            {soldOut ? <span className="tag-reserved">Reserved</span> : null}
+          </ImageSlot>
           <div
             style={{
               display: "grid",
@@ -72,11 +77,7 @@ export default async function ProductPage({
         </div>
 
         {/* info */}
-        <div
-          style={{
-            padding: "clamp(40px,5vw,60px) clamp(24px,4vw,56px) 80px",
-          }}
-        >
+        <div style={{ padding: "clamp(40px,5vw,60px) clamp(24px,4vw,56px) 80px" }}>
           <div
             style={{
               fontSize: 10,
@@ -86,7 +87,7 @@ export default async function ProductPage({
               marginBottom: 18,
             }}
           >
-            {carpet.tag}
+            {product.tag}
           </div>
           <h1
             className="serif"
@@ -96,22 +97,15 @@ export default async function ProductPage({
               margin: "0 0 14px",
             }}
           >
-            {carpet.name}
+            {product.name}
           </h1>
-          <div
-            style={{ fontSize: 15, color: "var(--muted)", marginBottom: 30 }}
-          >
-            {carpet.meta}
+          <div style={{ fontSize: 15, color: "var(--muted)", marginBottom: 30 }}>
+            {product.meta}
           </div>
-          <div
-            className="serif"
-            style={{ fontSize: 30, marginBottom: 8 }}
-          >
-            {carpet.price}
+          <div className="serif" style={{ fontSize: 30, marginBottom: 8 }}>
+            {formatPrice(product.pricePence, product.priceFrom)}
           </div>
-          <div
-            style={{ fontSize: 12, color: "var(--muted)", marginBottom: 34 }}
-          >
+          <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 34 }}>
             Includes UK delivery, underlay and fitting
           </div>
 
@@ -124,7 +118,7 @@ export default async function ProductPage({
               textWrap: "pretty",
             }}
           >
-            {carpet.desc}
+            {product.description}
           </p>
 
           <div
@@ -135,7 +129,7 @@ export default async function ProductPage({
               marginBottom: 40,
             }}
           >
-            <AddToBagButton />
+            <AddToBagButton productId={product.id} soldOut={soldOut} />
             <Link href="/contact" className="btn btn--outline btn--block">
               Request a home trial
             </Link>
@@ -173,11 +167,7 @@ export default async function ProductPage({
           </div>
 
           <div
-            style={{
-              marginTop: 36,
-              padding: 26,
-              background: "var(--card-2)",
-            }}
+            style={{ marginTop: 36, padding: 26, background: "var(--card-2)" }}
           >
             <div
               style={{
@@ -199,7 +189,7 @@ export default async function ProductPage({
                 textWrap: "pretty",
               }}
             >
-              {carpet.prov}
+              {product.provenance}
             </p>
           </div>
         </div>

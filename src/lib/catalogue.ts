@@ -1,132 +1,159 @@
+// Static content: seed data for the product catalogue, plus editorial content
+// (journal posts, collection copy, spec sheet) that isn't managed in the admin.
+
 export type Category = "antique" | "contemporary";
 
-export interface Carpet {
-  id: string;
+export interface SeedProduct {
+  slug: string;
   name: string;
   tag: string;
   meta: string;
-  price: string;
-  cat: Category;
-  ph: string;
-  desc: string;
-  prov: string;
-  sold?: boolean;
+  pricePence: number;
+  priceFrom?: boolean;
+  category: Category;
+  description: string;
+  provenance: string;
+  imageCaption: string;
+  reserved?: boolean;
+  featured?: boolean;
+  stock?: number;
 }
+
+export const SEED_PRODUCTS: SeedProduct[] = [
+  {
+    slug: "heriz",
+    name: "Heriz, Azerbaijan",
+    tag: "Antique · c. 1910",
+    meta: "3.62 × 2.71 m · wool on cotton",
+    pricePence: 1840000,
+    category: "antique",
+    featured: true,
+    imageCaption: "Heriz — geometric medallion, rust and indigo",
+    description:
+      "A large-scale Heriz of the kind woven for European drawing rooms before the First World War. The drawing is bold and slightly irregular, which is exactly what you want: the weaver was working from memory rather than a cartoon. Terracotta field, ivory spandrels, a deep indigo medallion that has softened to slate in the light.",
+    provenance:
+      "Acquired from a private estate in Perthshire, 2024. In the same family since it was bought new in Tabriz around 1912. Original selvedges intact; one small reweave in the lower border, visible from the back only.",
+  },
+  {
+    slug: "serapi",
+    name: "Serapi runner",
+    tag: "Antique · c. 1890",
+    meta: "4.10 × 0.94 m · wool on wool",
+    pricePence: 985000,
+    category: "antique",
+    imageCaption: "Long runner, camel ground",
+    description:
+      "A corridor runner with the loose, airy drawing typical of the best Serapi weaving. Camel ground, which is undyed wool rather than a dye, so it will not shift over time. Low, even pile throughout.",
+    provenance:
+      "Bought at auction in Vienna, 2023. Hand-washed in Gloucestershire. No repairs.",
+  },
+  {
+    slug: "bakhshaish",
+    name: "Bakhshaish",
+    tag: "Antique · c. 1880",
+    meta: "3.05 × 2.44 m · wool on wool",
+    pricePence: 2400000,
+    category: "antique",
+    imageCaption: "Abrashed blue field, archaic drawing",
+    description:
+      "The collector's carpet in the room. Bakhshaish weaving is archaic, almost abstract, and the abrash across the field — those horizontal bands of shifting blue — comes from small dye lots used one after another. Considered a fault in 1880. Considered the whole point now.",
+    provenance:
+      "From the collection of a London dealer, retired 2022. Published in Hali, issue 186.",
+  },
+  {
+    slug: "oushak",
+    name: "Oushak, west Anatolia",
+    tag: "Antique · c. 1920",
+    meta: "4.01 × 3.15 m · wool on cotton",
+    pricePence: 1620000,
+    category: "antique",
+    imageCaption: "Soft apricot and pale blue, large scale",
+    description:
+      "Pale, generous and easy to live with. Oushaks were woven with a long, lustrous wool that takes light differently at either end of the room. Apricot field, pale blue and celadon drawing, very little red.",
+    provenance:
+      "Private purchase, Istanbul, 2023. Minor edge binding replaced.",
+  },
+  {
+    slug: "qashqai",
+    name: "Qashqai kilim",
+    tag: "Antique · c. 1930",
+    meta: "2.58 × 1.62 m · flatweave",
+    pricePence: 540000,
+    category: "antique",
+    reserved: true,
+    stock: 0,
+    imageCaption: "Flatweave, bands of madder and green",
+    description:
+      "Tribal flatweave from the Fars province, woven by a nomadic household for its own use. Bands of madder red, aubergine and an unusual green. Light enough to hang.",
+    provenance:
+      "Acquired in Shiraz, 2019. Held in stock; currently reserved.",
+  },
+  {
+    slug: "ziegler",
+    name: "Ziegler Sultanabad",
+    tag: "Antique · c. 1900",
+    meta: "4.55 × 3.40 m · wool on cotton",
+    pricePence: 2950000,
+    category: "antique",
+    featured: true,
+    imageCaption: "All-over vine, soft rose and sand",
+    description:
+      "Woven for the Manchester firm Ziegler & Co, who sent European designs to Persian looms and produced the most sympathetic decorative carpets ever made. All-over vine on a sand ground, faded rose, no medallion.",
+    provenance:
+      "Estate of an architect, Hampshire, 2025. Excellent condition for the size and age.",
+  },
+  {
+    slug: "ridgeline",
+    name: "Ridgeline, natural",
+    tag: "Contemporary · made to order",
+    meta: "Any size to 6 m · Tibetan wool & silk",
+    pricePence: 720000,
+    priceFrom: true,
+    category: "contemporary",
+    featured: true,
+    stock: 20,
+    imageCaption: "Modern high-low weave, oatmeal and ecru",
+    description:
+      "A high-low weave we developed with a workshop outside Kathmandu. The pattern is nothing but a change of pile height, so it reads as texture from standing and as drawing from the floor. Undyed Tibetan wool with a 15% silk highlight.",
+    provenance:
+      "Woven to order, 60 knots, 14 to 16 weeks. Fully traceable wool, GoodWeave certified workshop.",
+  },
+  {
+    slug: "meander",
+    name: "Meander, madder",
+    tag: "Contemporary · made to order",
+    meta: "Any size to 5 m · handspun wool",
+    pricePence: 640000,
+    priceFrom: true,
+    category: "contemporary",
+    stock: 20,
+    imageCaption: "Loose vine on a deep madder ground",
+    description:
+      "Our own drawing, taken from a fragment of eighteenth-century Persian weaving in the study. Handspun, vegetable-dyed wool, so the ground carries a natural abrash from the first day rather than waiting fifty years for it.",
+    provenance:
+      "Woven to order in Tabriz, 12 to 18 weeks depending on size. Dye recipes on file.",
+  },
+  {
+    slug: "plainfold",
+    name: "Plainfold, charcoal",
+    tag: "Contemporary · made to order",
+    meta: "Any size to 6 m · handspun wool",
+    pricePence: 590000,
+    priceFrom: true,
+    category: "contemporary",
+    stock: 20,
+    imageCaption: "Undyed charcoal, close texture",
+    description:
+      "For rooms where the carpet should be the quietest thing in it. No pattern, no border: just handspun charcoal wool with enough variation in the yarn that it never reads as flat or synthetic.",
+    provenance:
+      "Woven to order in Nepal, 10 to 14 weeks. Available in seven undyed shades.",
+  },
+];
 
 export interface Spec {
   k: string;
   v: string;
 }
-
-export interface Post {
-  cat: string;
-  ph: string;
-  title: string;
-  dek: string;
-}
-
-export const CATALOGUE: Carpet[] = [
-  {
-    id: "heriz",
-    name: "Heriz, Azerbaijan",
-    tag: "Antique · c. 1910",
-    meta: "3.62 × 2.71 m · wool on cotton",
-    price: "£18,400",
-    cat: "antique",
-    ph: "Heriz — geometric medallion, rust and indigo",
-    desc: "A large-scale Heriz of the kind woven for European drawing rooms before the First World War. The drawing is bold and slightly irregular, which is exactly what you want: the weaver was working from memory rather than a cartoon. Terracotta field, ivory spandrels, a deep indigo medallion that has softened to slate in the light.",
-    prov: "Acquired from a private estate in Perthshire, 2024. In the same family since it was bought new in Tabriz around 1912. Original selvedges intact; one small reweave in the lower border, visible from the back only.",
-  },
-  {
-    id: "serapi",
-    name: "Serapi runner",
-    tag: "Antique · c. 1890",
-    meta: "4.10 × 0.94 m · wool on wool",
-    price: "£9,850",
-    cat: "antique",
-    ph: "Long runner, camel ground",
-    desc: "A corridor runner with the loose, airy drawing typical of the best Serapi weaving. Camel ground, which is undyed wool rather than a dye, so it will not shift over time. Low, even pile throughout.",
-    prov: "Bought at auction in Vienna, 2023. Hand-washed in Gloucestershire. No repairs.",
-  },
-  {
-    id: "bakhshaish",
-    name: "Bakhshaish",
-    tag: "Antique · c. 1880",
-    meta: "3.05 × 2.44 m · wool on wool",
-    price: "£24,000",
-    cat: "antique",
-    ph: "Abrashed blue field, archaic drawing",
-    desc: "The collector's carpet in the room. Bakhshaish weaving is archaic, almost abstract, and the abrash across the field — those horizontal bands of shifting blue — comes from small dye lots used one after another. Considered a fault in 1880. Considered the whole point now.",
-    prov: "From the collection of a London dealer, retired 2022. Published in Hali, issue 186.",
-  },
-  {
-    id: "oushak",
-    name: "Oushak, west Anatolia",
-    tag: "Antique · c. 1920",
-    meta: "4.01 × 3.15 m · wool on cotton",
-    price: "£16,200",
-    cat: "antique",
-    ph: "Soft apricot and pale blue, large scale",
-    desc: "Pale, generous and easy to live with. Oushaks were woven with a long, lustrous wool that takes light differently at either end of the room. Apricot field, pale blue and celadon drawing, very little red.",
-    prov: "Private purchase, Istanbul, 2023. Minor edge binding replaced.",
-  },
-  {
-    id: "qashqai",
-    name: "Qashqai kilim",
-    tag: "Antique · c. 1930",
-    meta: "2.58 × 1.62 m · flatweave",
-    price: "£5,400",
-    cat: "antique",
-    ph: "Flatweave, bands of madder and green",
-    sold: true,
-    desc: "Tribal flatweave from the Fars province, woven by a nomadic household for its own use. Bands of madder red, aubergine and an unusual green. Light enough to hang.",
-    prov: "Acquired in Shiraz, 2019. Held in stock; currently reserved.",
-  },
-  {
-    id: "ziegler",
-    name: "Ziegler Sultanabad",
-    tag: "Antique · c. 1900",
-    meta: "4.55 × 3.40 m · wool on cotton",
-    price: "£29,500",
-    cat: "antique",
-    ph: "All-over vine, soft rose and sand",
-    desc: "Woven for the Manchester firm Ziegler & Co, who sent European designs to Persian looms and produced the most sympathetic decorative carpets ever made. All-over vine on a sand ground, faded rose, no medallion.",
-    prov: "Estate of an architect, Hampshire, 2025. Excellent condition for the size and age.",
-  },
-  {
-    id: "ridgeline",
-    name: "Ridgeline, natural",
-    tag: "Contemporary · made to order",
-    meta: "Any size to 6 m · Tibetan wool & silk",
-    price: "from £7,200",
-    cat: "contemporary",
-    ph: "Modern high-low weave, oatmeal and ecru",
-    desc: "A high-low weave we developed with a workshop outside Kathmandu. The pattern is nothing but a change of pile height, so it reads as texture from standing and as drawing from the floor. Undyed Tibetan wool with a 15% silk highlight.",
-    prov: "Woven to order, 60 knots, 14 to 16 weeks. Fully traceable wool, GoodWeave certified workshop.",
-  },
-  {
-    id: "meander",
-    name: "Meander, madder",
-    tag: "Contemporary · made to order",
-    meta: "Any size to 5 m · handspun wool",
-    price: "from £6,400",
-    cat: "contemporary",
-    ph: "Loose vine on a deep madder ground",
-    desc: "Our own drawing, taken from a fragment of eighteenth-century Persian weaving in the study. Handspun, vegetable-dyed wool, so the ground carries a natural abrash from the first day rather than waiting fifty years for it.",
-    prov: "Woven to order in Tabriz, 12 to 18 weeks depending on size. Dye recipes on file.",
-  },
-  {
-    id: "plainfold",
-    name: "Plainfold, charcoal",
-    tag: "Contemporary · made to order",
-    meta: "Any size to 6 m · handspun wool",
-    price: "from £5,900",
-    cat: "contemporary",
-    ph: "Undyed charcoal, close texture",
-    desc: "For rooms where the carpet should be the quietest thing in it. No pattern, no border: just handspun charcoal wool with enough variation in the yarn that it never reads as flat or synthetic.",
-    prov: "Woven to order in Nepal, 10 to 14 weeks. Available in seven undyed shades.",
-  },
-];
 
 export const SPECS: Spec[] = [
   { k: "Reference", v: "SC-0148" },
@@ -138,6 +165,13 @@ export const SPECS: Spec[] = [
   { k: "Condition", v: "Very good; low even pile, one reweave in lower border" },
   { k: "Pile height", v: "6 mm" },
 ];
+
+export interface Post {
+  cat: string;
+  ph: string;
+  title: string;
+  dek: string;
+}
 
 export const POSTS: Post[] = [
   {
@@ -184,7 +218,7 @@ export const COLLECTION_COPY: Record<
 > = {
   all: {
     eyebrow: "The collection",
-    title: "One hundred and forty-eight carpets",
+    title: "The full collection",
     blurb:
       "Everything we hold, photographed as it is. Prices include UK delivery, underlay and fitting. Anything can go out on a fourteen-day home trial.",
   },
@@ -201,7 +235,3 @@ export const COLLECTION_COPY: Record<
       "Designs we commission from six workshops in Iran and Nepal. Any size up to six metres, in the shades shown or a dye lot matched to your room.",
   },
 };
-
-export function getCarpet(id: string): Carpet | undefined {
-  return CATALOGUE.find((c) => c.id === id);
-}

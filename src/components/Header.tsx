@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useCart } from "./CartContext";
+import { cartCount } from "@/lib/cart";
+import { getCurrentUser } from "@/lib/auth";
 
 const NAV = [
   { href: "/collection", label: "Collection" },
@@ -12,8 +11,9 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export default function Header() {
-  const { count } = useCart();
+export default async function Header() {
+  const [count, user] = await Promise.all([cartCount(), getCurrentUser()]);
+
   return (
     <header className="header">
       <div className="header__inner">
@@ -29,12 +29,14 @@ export default function Header() {
           ))}
         </nav>
         <div className="header__util">
-          <button type="button" className="linklike">
-            Search
-          </button>
-          <button type="button" className="linklike">
-            Bag ({count})
-          </button>
+          {user ? (
+            <Link href={user.role === "admin" ? "/admin" : "/account"}>
+              {user.role === "admin" ? "Admin" : "Account"}
+            </Link>
+          ) : (
+            <Link href="/account/login">Sign in</Link>
+          )}
+          <Link href="/cart">Bag ({count})</Link>
         </div>
       </div>
     </header>

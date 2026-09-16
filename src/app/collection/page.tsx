@@ -1,6 +1,9 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { CATALOGUE, COLLECTION_COPY, type Category } from "@/lib/catalogue";
+import { COLLECTION_COPY, type Category } from "@/lib/catalogue";
+import { getAllProducts, getByCategory } from "@/lib/products";
+
+export const dynamic = "force-dynamic";
 
 const FILTERS: { id: "all" | Category; label: string; href: string }[] = [
   { id: "all", label: "Everything", href: "/collection" },
@@ -23,9 +26,7 @@ export default async function CollectionPage({
 
   const copy = COLLECTION_COPY[filter];
   const shown =
-    filter === "all"
-      ? CATALOGUE
-      : CATALOGUE.filter((c) => c.cat === filter);
+    filter === "all" ? await getAllProducts() : await getByCategory(filter);
 
   return (
     <>
@@ -80,19 +81,16 @@ export default async function CollectionPage({
           }}
         >
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {FILTERS.map((f) => {
-              const active = f.id === filter;
-              return (
-                <Link
-                  key={f.id}
-                  href={f.href}
-                  className="filter-tab"
-                  data-active={active}
-                >
-                  {f.label}
-                </Link>
-              );
-            })}
+            {FILTERS.map((f) => (
+              <Link
+                key={f.id}
+                href={f.href}
+                className="filter-tab"
+                data-active={f.id === filter}
+              >
+                {f.label}
+              </Link>
+            ))}
           </div>
           <div
             style={{
@@ -101,27 +99,38 @@ export default async function CollectionPage({
               color: "var(--muted)",
             }}
           >
-            {shown.length} pieces
+            {shown.length} {shown.length === 1 ? "piece" : "pieces"}
           </div>
         </div>
       </div>
 
-      <section
-        className="wrap"
-        style={{ paddingTop: 56, paddingBottom: 100 }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
-            gap: "44px 36px",
-          }}
-        >
-          {shown.map((c) => (
-            <ProductCard key={c.id} carpet={c} />
-          ))}
-        </div>
+      <section className="wrap" style={{ paddingTop: 56, paddingBottom: 100 }}>
+        {shown.length === 0 ? (
+          <p
+            style={{
+              color: "var(--muted-2)",
+              fontSize: 16,
+              lineHeight: 1.7,
+              maxWidth: "50ch",
+            }}
+          >
+            Nothing in this part of the collection just now. New pieces are
+            listed most Thursdays.
+          </p>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
+              gap: "44px 36px",
+            }}
+          >
+            {shown.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </section>
     </>
   );
