@@ -1,9 +1,11 @@
 import ProductForm from "@/components/ProductForm";
 import { createProductAction } from "@/lib/actions/admin";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  await requireAdmin();
   return (
     <>
       <div className="admin-h">

@@ -24,6 +24,7 @@ export async function loginAction(
   _prev: AuthState,
   formData: FormData
 ): Promise<AuthState> {
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) return {error:"Sign-in is not configured. The store owner must set AUTH_SECRET in Vercel and redeploy."};
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
@@ -47,6 +48,7 @@ export async function registerAction(
   _prev: AuthState,
   formData: FormData
 ): Promise<AuthState> {
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) return {error:"Account registration is temporarily unavailable."};
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "")
     .trim()
@@ -74,6 +76,7 @@ export async function registerAction(
     },
   });
 
+  await prisma.customer.upsert({where:{email},update:{},create:{email,name:name || email}});
   await createSession(user.id);
   redirect("/account");
 }

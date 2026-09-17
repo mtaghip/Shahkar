@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 interface ImageSlotProps {
+  src?: string;
   caption: string;
   /** aspect-ratio, e.g. "4/5". Omit when the parent sets the height. */
   ratio?: string;
@@ -16,6 +17,7 @@ interface ImageSlotProps {
  * <Image> (or a background photo) when photography is available.
  */
 export default function ImageSlot({
+  src,
   caption,
   ratio,
   className,
@@ -30,9 +32,9 @@ export default function ImageSlot({
   };
   return (
     <div className={className} style={wrapStyle}>
-      <div className="imgslot" role="img" aria-label={caption}>
+      {src ? <img src={src} alt={caption} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/> : <div className="imgslot" role="img" aria-label={caption}>
         <span className="imgslot__cap">{caption}</span>
-      </div>
+      </div>}
       {children}
     </div>
   );

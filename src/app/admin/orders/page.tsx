@@ -1,22 +1,32 @@
 import { prisma } from "@/lib/prisma";
 import { formatExact } from "@/lib/money";
 import { setOrderStatusAction } from "@/lib/actions/admin";
+import Link from "next/link";
+import { requireAdmin } from "@/lib/auth";
+import { pageNumber } from "@/lib/admin-validation";
 
 export const dynamic = "force-dynamic";
 
 const STATUSES = ["PENDING_PAYMENT", "PAID", "CANCELLED"];
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({searchParams}:{searchParams:Promise<{q?:string;page?:string}>}) {
+  await requireAdmin();
+  const params=await searchParams;const q=(params.q || "").slice(0,150);const page=pageNumber(params.page);
+  const where={OR:[{reference:{contains:q,mode:"insensitive" as const}},{name:{contains:q,mode:"insensitive" as const}},{email:{contains:q,mode:"insensitive" as const}}]};
+  const count=await prisma.order.count({where});
   const orders = await prisma.order.findMany({
+    where, take:25, skip:(page-1)*25,
     orderBy: { createdAt: "desc" },
     include: { items: true },
   });
 
   return (
     <>
-      <div className="admin-h">
-        <h2>Orders</h2>
+      <div className="admin-heading">
+        <div><h1>Orders</h1><p>{count} orders · Manage customer requests and payment status</p></div>
       </div>
+      <div className="admin-notice warning">Changing an order to paid records an offline payment; it does not charge the customer. Cancelling an order does not automatically restock its products.</div>
+      <form className="admin-toolbar"><input name="q" aria-label="Search orders" defaultValue={q} placeholder="Search order reference, customer or email"/><button className="btn">Search</button></form>
 
       {orders.length === 0 ? (
         <p style={{ color: "var(--muted)", fontSize: 15 }}>No orders yet.</p>
@@ -38,7 +48,7 @@ export default async function AdminOrdersPage() {
                 <tr key={o.id}>
                   <td>{o.reference}</td>
                   <td>
-                    {o.name}
+                    {o.customerId ? <Link href={"/admin/customers/"+o.customerId}>{o.name}</Link> : o.name}
                     <div style={{ fontSize: 12, color: "var(--muted)" }}>
                       {o.email}
                     </div>
@@ -89,6 +99,7 @@ export default async function AdminOrdersPage() {
           </table>
         </div>
       )}
+      <div className="pagination">{page>1 && <Link href={"?q="+encodeURIComponent(q)+"&page="+(page-1)}>← Previous</Link>}<small>Page {page}</small>{page*25<count && <Link href={"?q="+encodeURIComponent(q)+"&page="+(page+1)}>Next →</Link>}</div>
     </>
   );
 }

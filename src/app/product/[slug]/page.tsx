@@ -52,7 +52,7 @@ export default async function ProductPage({
       >
         {/* images */}
         <div style={{ borderRight: "1px solid var(--line)" }}>
-          <ImageSlot caption={product.imageCaption} ratio="1/1">
+          <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="1/1">
             {soldOut ? <span className="tag-reserved">Reserved</span> : null}
           </ImageSlot>
           <div
@@ -62,17 +62,7 @@ export default async function ProductPage({
               borderTop: "1px solid var(--line)",
             }}
           >
-            <ImageSlot
-              caption="Pile detail"
-              ratio="1/1"
-              style={{ borderRight: "1px solid var(--line)" }}
-            />
-            <ImageSlot
-              caption="Corner / border"
-              ratio="1/1"
-              style={{ borderRight: "1px solid var(--line)" }}
-            />
-            <ImageSlot caption="In situ" ratio="1/1" />
+            {product.imageIds.slice(1).map((id,index)=><a key={id} href={"/api/media/"+id} target="_blank" rel="noreferrer"><ImageSlot src={"/api/media/"+id} caption={product.name+" — photo "+(index+2)} ratio="1/1"/></a>)}
           </div>
         </div>
 

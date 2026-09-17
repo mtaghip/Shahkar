@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import ProductMedia from "./ProductMedia";
 import Link from "next/link";
 import type { ProductFormState } from "@/lib/actions/admin";
 import type { Product } from "@prisma/client";
@@ -19,6 +20,7 @@ export default function ProductForm({
   product?: Product;
   submitLabel: string;
 }) {
+  const [uploading, setUploading] = useState(false);
   const [state, formAction, pending] = useActionState<
     ProductFormState,
     FormData
@@ -31,6 +33,9 @@ export default function ProductForm({
   return (
     <form action={formAction}>
       <div className="pform">
+        <label className="field"><span>Publishing status</span><select name="status" defaultValue={product?.status ?? "DRAFT"}><option value="DRAFT">Draft — hidden from the shop</option><option value="ACTIVE">Active — visible in the shop</option><option value="ARCHIVED">Archived — hidden from the shop</option></select></label>
+        <label className="field"><span>SKU / stock reference</span><input name="sku" maxLength={100} defaultValue={product?.sku}/></label>
+        <ProductMedia initial={product?.imageIds} onBusy={setUploading}/>
         <label className="field field--wide">
           <span>Name</span>
           <input type="text" name="name" required defaultValue={product?.name} />
@@ -141,8 +146,8 @@ export default function ProductForm({
       ) : null}
 
       <div style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap" }}>
-        <button type="submit" className="btn btn--solid" disabled={pending}>
-          {pending ? "Saving…" : submitLabel}
+        <button type="submit" className="btn btn--solid" disabled={pending || uploading}>
+          {uploading ? "Uploading photos…" : pending ? "Saving…" : submitLabel}
         </button>
         <Link href="/admin" className="btn btn--ghost">
           Cancel

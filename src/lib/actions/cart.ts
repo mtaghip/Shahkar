@@ -6,12 +6,12 @@ import { prisma } from "@/lib/prisma";
 
 export async function addToCart(productId: string): Promise<void> {
   const product = await prisma.product.findUnique({ where: { id: productId } });
-  if (!product) return;
+  if (!product || product.status !== "ACTIVE" || product.reserved || product.stock <= 0) return;
 
   const entries = await readCart();
   const existing = entries.find((e) => e.productId === productId);
   if (existing) {
-    existing.qty += 1;
+    existing.qty = Math.min(existing.qty+1,product.stock,100);
   } else {
     entries.push({ productId, qty: 1 });
   }

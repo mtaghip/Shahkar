@@ -7,7 +7,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const soldOut = product.reserved || product.stock <= 0;
   return (
     <Link href={`/product/${product.slug}`} className="card">
-      <ImageSlot caption={product.imageCaption} ratio="4/5">
+      <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="4/5">
         {soldOut ? <span className="tag-reserved">Reserved</span> : null}
       </ImageSlot>
       <div>

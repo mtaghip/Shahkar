@@ -14,6 +14,7 @@ const COOKIE = "shahkar_session";
 const MAX_AGE_S = 60 * 60 * 24 * 30; // 30 days
 
 function secret(): string {
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) throw new Error("AUTH_SECRET is required in production.");
   return process.env.AUTH_SECRET || "insecure-dev-secret-change-me";
 }
 
@@ -86,6 +87,7 @@ export async function destroySession(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) return null;
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
   if (!token) return null;

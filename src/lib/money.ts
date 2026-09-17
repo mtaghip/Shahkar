@@ -21,8 +21,9 @@ export function formatExact(pence: number): string {
 
 /** Parse a user-entered pounds string ("18,400" or "£18400.50") to pence. */
 export function poundsToPence(input: string): number {
-  const cleaned = input.replace(/[^0-9.]/g, "");
-  const pounds = parseFloat(cleaned);
-  if (Number.isNaN(pounds)) return 0;
+  const cleaned = input.trim().replace(/^£\s*/, "").replace(/,/g, "");
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return 0;
+  const pounds = Number(cleaned);
+  if (!Number.isFinite(pounds) || pounds > 21474836.47) return 0;
   return Math.round(pounds * 100);
 }

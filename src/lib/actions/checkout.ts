@@ -36,11 +36,13 @@ export async function placeOrder(
   if (lines.length === 0) {
     return { error: "Your bag is empty." };
   }
+  if (lines.some(l=>l.product.reserved || l.product.stock<l.qty)) return {error:"An item is no longer available in that quantity. Please update your bag."};
 
   const user = await getCurrentUser();
   const address = [line1, city, postcode].filter(Boolean).join(", ");
 
   const order = await prisma.$transaction(async (tx) => {
+    const customer = await tx.customer.upsert({where:{email},update:{},create:{email,name,phone,address}});
     const created = await tx.order.create({
       data: {
         reference: makeReference(),
@@ -51,6 +53,7 @@ export async function placeOrder(
         totalPence,
         status: "PENDING_PAYMENT",
         userId: user?.id ?? null,
+        customerId: customer.id,
         items: {
           create: lines.map((l) => ({
             productId: l.product.id,

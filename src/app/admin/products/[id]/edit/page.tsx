@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import ProductForm from "@/components/ProductForm";
 import { getById } from "@/lib/products";
 import { updateProductAction } from "@/lib/actions/admin";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,7 @@ export default async function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const product = await getById(id);
   if (!product) notFound();

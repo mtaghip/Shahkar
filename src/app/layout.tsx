@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
   title: "Shahkar Carpets — Antique & contemporary handmade carpets",
@@ -29,14 +30,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="page">
-          <div className="announce">
-            Complimentary worldwide shipping &amp; 14-day home trial
-          </div>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </div>
+        <SiteChrome header={<Header />} footer={<Footer />}>{children}</SiteChrome>
       </body>
     </html>
   );

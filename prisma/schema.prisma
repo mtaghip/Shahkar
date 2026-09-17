@@ -35,6 +35,9 @@ model Product {
   description  String
   provenance   String
   imageCaption String // placeholder caption / alt text for the main photo
+  imageIds     String[]    @default([])
+  status       String      @default("ACTIVE")
+  sku          String      @default("")
   stock        Int         @default(1)
   reserved     Boolean     @default(false)
   featured     Boolean     @default(false)
@@ -53,6 +56,8 @@ model Order {
   totalPence Int
   status     String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | CANCELLED
   userId     String?
+  customerId String?
+  customer   Customer?   @relation(fields: [customerId], references: [id])
   user       User?       @relation(fields: [userId], references: [id])
   items      OrderItem[]
   createdAt  DateTime    @default(now())
@@ -67,4 +72,40 @@ model OrderItem {
   name       String // snapshot of the product name at purchase time
   pricePence Int // snapshot of unit price
   qty        Int     @default(1)
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  data      Bytes
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String
+  phone            String   @default("")
+  address          String   @default("")
+  notes            String   @default("")
+  tags             String   @default("")
+  marketingConsent Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  orders           Order[]
+  messages         EmailMessage[]
+}
+
+model EmailMessage {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  recipient  String
+  subject    String
+  body       String
+  status     String   @default("DRAFT")
+  providerId String?
+  error      String?
+  createdAt  DateTime @default(now())
+  sentAt     DateTime?
+  @@index([customerId, createdAt])
 }

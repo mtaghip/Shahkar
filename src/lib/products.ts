@@ -5,18 +5,18 @@ import type { Prisma, Product } from "@prisma/client";
 export type { Product };
 
 export function getAllProducts() {
-  return prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+  return prisma.product.findMany({ where: { status: "ACTIVE" }, orderBy: { createdAt: "desc" } });
 }
 
 export function getByCategory(category: Category) {
   return prisma.product.findMany({
-    where: { category },
+    where: { category, status: "ACTIVE" },
     orderBy: { createdAt: "desc" },
   });
 }
 
 export function getBySlug(slug: string) {
-  return prisma.product.findUnique({ where: { slug } });
+  return prisma.product.findFirst({ where: { slug, status: "ACTIVE" } });
 }
 
 export function getById(id: string) {
@@ -25,7 +25,7 @@ export function getById(id: string) {
 
 export function getFeatured(limit = 3) {
   return prisma.product.findMany({
-    where: { featured: true },
+    where: { featured: true, status: "ACTIVE" },
     orderBy: { createdAt: "desc" },
     take: limit,
   });
@@ -33,9 +33,9 @@ export function getFeatured(limit = 3) {
 
 export async function countByCategory() {
   const [all, antique, contemporary] = await Promise.all([
-    prisma.product.count(),
-    prisma.product.count({ where: { category: "antique" } }),
-    prisma.product.count({ where: { category: "contemporary" } }),
+    prisma.product.count({where:{status:"ACTIVE"}}),
+    prisma.product.count({ where: { category: "antique",status:"ACTIVE" } }),
+    prisma.product.count({ where: { category: "contemporary",status:"ACTIVE" } }),
   ]);
   return { all, antique, contemporary };
 }

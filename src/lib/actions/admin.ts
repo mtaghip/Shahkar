@@ -18,6 +18,9 @@ function readProductForm(formData: FormData) {
   const priceStr = String(formData.get("price") || "");
 
   return {
+    status: ["ACTIVE","DRAFT","ARCHIVED"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "DRAFT",
+    sku: String(formData.get("sku") || "").trim().slice(0,100),
+    imageIds: [...new Set(String(formData.get("imageIds") || "").split(",").filter(Boolean))],
     name,
     slug: slugInput ? slugify(slugInput) : slugify(name),
     tag: String(formData.get("tag") || "").trim(),
@@ -28,7 +31,7 @@ function readProductForm(formData: FormData) {
     description: String(formData.get("description") || "").trim(),
     provenance: String(formData.get("provenance") || "").trim(),
     imageCaption: String(formData.get("imageCaption") || "").trim(),
-    stock: Math.max(0, parseInt(String(formData.get("stock") || "1"), 10) || 0),
+    stock: Number(formData.get("stock") ?? 1),
     featured: formData.get("featured") === "on",
     reserved: formData.get("reserved") === "on",
   };
@@ -49,11 +52,14 @@ export async function createProductAction(
     return { error: `The slug "${data.slug}" is already in use — pick another.` };
   }
 
+  if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
+  if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
   await prisma.product.create({ data });
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
-  redirect("/admin?created=1");
+  revalidatePath("/admin/products");
+  redirect("/admin/products?created=1");
 }
 
 export async function updateProductAction(
@@ -74,12 +80,15 @@ export async function updateProductAction(
     return { error: `The slug "${data.slug}" is already in use — pick another.` };
   }
 
+  if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
+  if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
   await prisma.product.update({ where: { id }, data });
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
   revalidatePath(`/product/${data.slug}`);
-  redirect("/admin?updated=1");
+  revalidatePath("/admin/products");
+  redirect("/admin/products?updated=1");
 }
 
 export async function deleteProductAction(formData: FormData): Promise<void> {

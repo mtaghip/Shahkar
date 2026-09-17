@@ -1,162 +1,19 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { formatExact, formatPrice } from "@/lib/money";
-import { deleteProductAction } from "@/lib/actions/admin";
-
-export const dynamic = "force-dynamic";
-
-export default async function AdminDashboard({
-  searchParams,
-}: {
-  searchParams: Promise<{ created?: string; updated?: string; deleted?: string }>;
-}) {
-  const { created, updated } = await searchParams;
-
-  const [products, productCount, orderCount, paidAgg, recentOrders] =
-    await Promise.all([
-      prisma.product.findMany({ orderBy: { createdAt: "desc" } }),
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.order.aggregate({
-        _sum: { totalPence: true },
-        where: { status: "PAID" },
-      }),
-      prisma.order.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        include: { items: true },
-      }),
-    ]);
-
-  return (
-    <>
-      {created ? <div className="notice">Product created.</div> : null}
-      {updated ? <div className="notice">Product updated.</div> : null}
-
-      <div className="stat-row">
-        <div className="stat">
-          <div className="stat__n">{productCount}</div>
-          <div className="stat__l">Products</div>
-        </div>
-        <div className="stat">
-          <div className="stat__n">{orderCount}</div>
-          <div className="stat__l">Orders</div>
-        </div>
-        <div className="stat">
-          <div className="stat__n">
-            {formatExact(paidAgg._sum.totalPence ?? 0)}
-          </div>
-          <div className="stat__l">Paid revenue</div>
-        </div>
-      </div>
-
-      {/* products */}
-      <div className="admin-h">
-        <h2>Products</h2>
-        <Link href="/admin/products/new" className="btn btn--solid btn--sm">
-          Add product
-        </Link>
-      </div>
-
-      <div className="table-scroll" style={{ marginBottom: 56 }}>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Flags</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link href={`/product/${p.slug}`} style={{ fontWeight: 500 }}>
-                    {p.name}
-                  </Link>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                    /{p.slug}
-                  </div>
-                </td>
-                <td style={{ textTransform: "capitalize" }}>{p.category}</td>
-                <td>{formatPrice(p.pricePence, p.priceFrom)}</td>
-                <td>{p.stock}</td>
-                <td>
-                  <span style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {p.featured ? <span className="pill">Featured</span> : null}
-                    {p.reserved ? (
-                      <span className="pill pill--cancelled">Reserved</span>
-                    ) : null}
-                  </span>
-                </td>
-                <td>
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <Link
-                      href={`/admin/products/${p.id}/edit`}
-                      className="btn btn--ghost btn--sm"
-                    >
-                      Edit
-                    </Link>
-                    <form action={deleteProductAction}>
-                      <input type="hidden" name="id" value={p.id} />
-                      <button type="submit" className="btn btn--danger btn--sm">
-                        Delete
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* recent orders */}
-      <div className="admin-h">
-        <h2>Recent orders</h2>
-        <Link href="/admin/orders" className="btn btn--ghost btn--sm">
-          All orders
-        </Link>
-      </div>
-
-      {recentOrders.length === 0 ? (
-        <p style={{ color: "var(--muted)", fontSize: 15 }}>No orders yet.</p>
-      ) : (
-        <div className="table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map((o) => (
-                <tr key={o.id}>
-                  <td>{o.reference}</td>
-                  <td>
-                    {o.name}
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                      {o.email}
-                    </div>
-                  </td>
-                  <td>{o.items.reduce((n, i) => n + i.qty, 0)}</td>
-                  <td>{formatExact(o.totalPence)}</td>
-                  <td>{o.status.replace("_", " ").toLowerCase()}</td>
-                  <td>{o.createdAt.toLocaleDateString("en-GB")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </>
-  );
+import {prisma} from "@/lib/prisma";
+import {requireAdmin} from "@/lib/auth";
+import {formatExact} from "@/lib/money";
+import {emailConfigured} from "@/lib/admin-validation";
+export default async function Page(){
+ await requireAdmin();
+ const [products,customers,orders,revenue,recent,lowStock,drafts]=await Promise.all([
+ prisma.product.count({where:{status:"ACTIVE"}}),prisma.customer.count(),prisma.order.count(),
+ prisma.order.aggregate({where:{status:"PAID"},_sum:{totalPence:true}}),
+ prisma.order.findMany({orderBy:{createdAt:"desc"},take:6}),
+ prisma.product.count({where:{status:"ACTIVE",stock:{lte:1}}}),prisma.product.count({where:{status:"DRAFT"}})]);
+ return <><div className="admin-heading"><div><h1>Your store, at a glance</h1><p>Welcome back. Here’s what’s happening at Shahkar.</p></div><Link className="btn" href="/" target="_blank">View store ↗</Link></div>
+ <div className="admin-grid">{[["Paid revenue",formatExact(revenue._sum.totalPence || 0),"All time"],["Orders",orders,"All statuses"],["Active products",products,"Published in your store"],["Customers",customers,"Saved customer profiles"]].map(([label,value,detail])=><div className="metric" key={label}><span>{label}</span><strong>{value}</strong><small>{detail}</small></div>)}</div>
+ <div className="admin-columns"><div><section className="admin-card"><h2>Make room for your next great piece</h2><p className="subtle">Add photography, set your price and stock, and publish when your product is ready.</p><Link className="btn btn--solid" href="/admin/products/new">Add a product</Link><Link className="btn" style={{marginLeft:10}} href="/admin/products">Manage catalogue</Link></section>
+ <section><div className="admin-heading"><h2>Recent orders</h2><Link href="/admin/orders">View all →</Link></div><div className="table-scroll"><table className="table"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>{recent.map(o=><tr key={o.id}><td><Link href={"/admin/orders?q="+o.reference}>{o.reference}</Link><small>{o.createdAt.toLocaleDateString("en-GB")}</small></td><td>{o.name}</td><td>{formatExact(o.totalPence)}</td><td><span className={"badge "+(o.status==="PAID"?"good":"")}>{o.status.replaceAll("_"," ")}</span></td></tr>)}</tbody></table>{!recent.length && <div className="admin-empty"><strong>Ready for your first order</strong>New orders will appear here automatically.</div>}</div></section></div>
+ <div><section className="admin-card"><h2>Store checklist</h2><Link className="quick-link" href="/admin/products?status=DRAFT"><strong>{drafts} draft products</strong><small>Review and publish your next additions →</small></Link><Link className="quick-link" href="/admin/products?stock=low"><strong>{lowStock} products with low stock</strong><small>Includes one-of-a-kind pieces →</small></Link><Link className="quick-link" href="/admin/settings"><strong>{emailConfigured()?"Email sender configured":"Connect your email sender"}</strong><small>{emailConfigured()?"Review your email setup":"Save drafts now; connect Resend to send"} →</small></Link></section>
+ <section className="admin-card"><h2>Build customer relationships</h2><p className="subtle">Save contact details, preferences and private notes, then write a personal follow-up.</p><Link className="btn" href="/admin/customers/new">Add customer</Link></section></div></div></>;
 }
