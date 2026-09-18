@@ -792,3 +792,70 @@ img {
   height: 16px;
   accent-color: var(--madder);
 }
+
+@media (max-width: 700px) {
+  .header__inner {
+    padding: 10px 16px 8px;
+    gap: 4px 10px;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+  }
+
+  .header__util {
+    margin-left: auto;
+    gap: 2px;
+  }
+
+  .header__util a,
+  .header__util .linklike {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  .nav {
+    order: 3;
+    flex: 1 0 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 2px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+  }
+
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .filter-tab {
+    min-height: 44px;
+  }
+
+  .qty button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .qty__n {
+    min-width: 44px;
+    line-height: 44px;
+  }
+
+  .footer__col a,
+  .footer__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
