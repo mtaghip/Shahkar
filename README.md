@@ -79,9 +79,12 @@ No email is sent merely by creating a profile or draft.
 | --- | --- |
 | **Storefront** | Home, collection with **Antique / Contemporary** filters, single carpet, house, journal, contact — all reading live from the database |
 | **Cart** | Cookie-backed bag, quantity controls for made-to-order pieces, live count in the header |
-| **Checkout** | Guest or signed-in; creates a real `Order` (status `PENDING_PAYMENT`) and reserves unique antique pieces |
+| **Checkout** | Guest or signed-in; shipping options with live totals; **Stripe Checkout** when configured, otherwise a "reserve & arrange payment" flow. Reserves unique antique pieces and decrements stock |
+| **Payments** | Stripe hosted Checkout + webhook (`/api/webhooks/stripe`) marks orders paid; automatic buyer confirmation email. Optional — works without keys |
+| **Shipping & fulfilment** | Flat-rate shipping (UK/Europe/worldwide); admin marks orders fulfilled, adds tracking, and emails the buyer |
+| **Refunds & returns** | Admin refund (Stripe refund + restock); customer-initiated returns within the 14-day home trial, processed in admin |
 | **Accounts** | Email/password register & login, order history at `/account` |
-| **Admin** | Shopify-style admin workspace: dashboard, product publishing/media, customer CRM, orders and email drafts |
+| **Admin** | Shopify-style admin workspace: dashboard, product publishing/media, customer CRM, orders (payment/fulfilment/refund), returns and email drafts |
 | **Auth** | Self-contained — scrypt password hashing + an HMAC-signed session cookie (no third-party auth service) |
 
 ## Data model (`prisma/schema.prisma`)
@@ -116,9 +119,12 @@ src/
 
 ## Notes on scope
 
-- **Payment capture is intentionally stubbed** — checkout creates the order and
-  reserves the piece; wiring Stripe (or similar) is a drop-in at
-  `src/lib/actions/checkout.ts`.
+- **Payments (Stripe):** set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in
+  Vercel and add a webhook endpoint for `/api/webhooks/stripe`
+  (`checkout.session.completed`, `checkout.session.expired`). Checkout then
+  redirects to Stripe and the webhook marks orders paid and emails the buyer.
+  Without keys, checkout runs the "reserve & arrange payment" flow and the admin
+  records payment manually. Refunds are issued from the admin order page.
 - **Product photos** are stored in PostgreSQL for a small catalogue. Monitor
   database storage as the catalogue grows; a larger shop should use object
   storage. Removed photos are not automatically cleaned up.

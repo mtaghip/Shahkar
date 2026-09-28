@@ -120,3 +120,104 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   revalidatePath("/admin");
   revalidatePath("/admin/orders");
 }
+
+function revalidateOrder(id: string) {
+  revalidatePath("/admin");
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath(`/order/${id}`);
+  revalidatePath("/account");
+}
+
+/** Record an offline (e.g. bank transfer) payment. Does not charge a card. */
+export async function markOrderPaidAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const { markOrderPaid } = await import("@/lib/payments");
+  await markOrderPaid(id, { provider: "offline" });
+  revalidateOrder(id);
+}
+
+/** Cancel an unpaid order and return its items to stock. */
+export async function cancelOrderAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const { expireOrder } = await import("@/lib/payments");
+  await expireOrder(id); // only cancels PENDING_PAYMENT orders, restocks them
+  revalidateOrder(id);
+}
+
+/** Refund a paid order: Stripe refund if applicable, restock, email the buyer. */
+export async function refundOrderAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const order = await prisma.order.findUnique({ where: { id } });
+  if (!order || order.status !== "PAID") return;
+  if (order.paymentProvider === "stripe" && order.stripePaymentIntentId) {
+    const { refundPaymentIntent } = await import("@/lib/stripe");
+    const result = await refundPaymentIntent(order.stripePaymentIntentId);
+    if (!result.ok) return; // leave PAID so the admin can retry
+  }
+  const { refundOrder } = await import("@/lib/payments");
+  await refundOrder(id);
+  revalidateOrder(id);
+}
+
+/** Mark an order fulfilled, save tracking, and email the buyer. */
+export async function fulfilOrderAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const trackingCarrier = String(formData.get("trackingCarrier") || "").trim().slice(0, 100);
+  const trackingNumber = String(formData.get("trackingNumber") || "").trim().slice(0, 100);
+  let trackingUrl = String(formData.get("trackingUrl") || "").trim().slice(0, 500);
+  if (trackingUrl && !/^https?:\/\//i.test(trackingUrl)) trackingUrl = "";
+
+  const order = await prisma.order.update({
+    where: { id },
+    data: {
+      fulfillmentStatus: "FULFILLED",
+      fulfilledAt: new Date(),
+      trackingCarrier,
+      trackingNumber,
+      trackingUrl,
+    },
+    include: { items: true },
+  });
+
+  const { sendMail, orderShippedEmail } = await import("@/lib/mailer");
+  const { subject, text } = orderShippedEmail(order);
+  await sendMail(order.email, subject, text, `order-shipped-${order.id}`);
+  revalidateOrder(id);
+}
+
+/** Advance a return through its lifecycle; "REFUNDED" also refunds the order. */
+export async function processReturnAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const returnId = String(formData.get("returnId") || "");
+  const status = String(formData.get("status") || "");
+  const allowed = ["APPROVED", "RECEIVED", "REFUNDED", "DECLINED"];
+  if (!returnId || !allowed.includes(status)) return;
+  const ret = await prisma.return.findUnique({ where: { id: returnId } });
+  if (!ret) return;
+
+  if (status === "REFUNDED") {
+    const order = await prisma.order.findUnique({ where: { id: ret.orderId } });
+    if (order?.status === "PAID") {
+      if (order.paymentProvider === "stripe" && order.stripePaymentIntentId) {
+        const { refundPaymentIntent } = await import("@/lib/stripe");
+        const result = await refundPaymentIntent(order.stripePaymentIntentId);
+        if (!result.ok) return;
+      }
+      const { refundOrder } = await import("@/lib/payments");
+      await refundOrder(order.id);
+    }
+  }
+
+  await prisma.return.update({ where: { id: returnId }, data: { status } });
+  revalidateOrder(ret.orderId);
+  revalidatePath("/admin/returns");
+}

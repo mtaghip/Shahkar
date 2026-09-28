@@ -44,13 +44,49 @@ await db.query('INSERT INTO "Media" ("id","data") VALUES ($1,$2)',["photo1",webp
 await db.query('UPDATE "Product" SET "imageIds" = ARRAY[$1], "status" = \'DRAFT\' WHERE "id" = \'p1\' ',["photo1"]);
 assert.equal((await db.query('SELECT * FROM "Product" WHERE "status" = \'ACTIVE\'')).rows.length,0);
 assert.equal((await db.query('SELECT "data" FROM "Media" WHERE "id" = \'photo1\'')).rows[0].data.length,webp.length);
+// Payments / fulfilment / returns migration
+await db.exec(readFileSync(new URL("../prisma/migrations/20260928140903_payments_fulfilment/migration.sql",import.meta.url),"utf8"));
+const migratedOrder=(await db.query('SELECT "fulfillmentStatus","shippingPence" FROM "Order" LIMIT 1')).rows[0];
+assert.equal(migratedOrder.fulfillmentStatus,"UNFULFILLED");
+assert.equal(migratedOrder.shippingPence,0);
+const anyOrderId=(await db.query('SELECT "id" FROM "Order" LIMIT 1')).rows[0].id;
+await db.query('INSERT INTO "Return" ("id","orderId","updatedAt") VALUES ($1,$2,CURRENT_TIMESTAMP)',["ret1",anyOrderId]);
+assert.equal((await db.query('SELECT "status" FROM "Return" WHERE "id" = \'ret1\'')).rows[0].status,"REQUESTED");
+await assert.rejects(db.query('INSERT INTO "Return" ("id","orderId","updatedAt") VALUES ($1,$2,CURRENT_TIMESTAMP)',["ret2","missing-order"]));
 await db.close();
-console.log("PASS PostgreSQL migrations, customer backfill, existing product preservation, draft filtering, email send lock, photo conversion and storage");
+console.log("PASS PostgreSQL migrations, customer backfill, existing product preservation, draft filtering, email send lock, photo conversion and storage, payments/returns schema");
+
+// Shipping rates resolve consistently.
+const {shippingRate,DEFAULT_SHIPPING_ID}=load("src/lib/shipping.ts");
+assert.equal(shippingRate("uk-express").pricePence,4500);
+assert.equal(shippingRate("uk-standard").pricePence,0);
+assert.equal(shippingRate("does-not-exist").id,DEFAULT_SHIPPING_ID);
+assert.equal(shippingRate(null).pricePence,0);
+console.log("PASS shipping rate resolution");
+
+// Customer return requests enforce paid status and the 14-day window.
+{
+ let created=false,orderStub={status:"PENDING_PAYMENT",userId:null,paidAt:null,createdAt:new Date(),returns:[]};
+ const {requestReturn}=load("src/lib/actions/returns.ts",{
+  "@/lib/prisma":{prisma:{order:{findUnique:async()=>orderStub},return:{create:async()=>{created=true;}}}},
+  "@/lib/auth":{getCurrentUser:async()=>null},
+  "next/cache":{revalidatePath(){}},
+ });
+ assert.equal((await requestReturn("o1",{},new FormData())).error,"Only paid orders can be returned.");
+ assert.equal(created,false);
+ orderStub={status:"PAID",userId:null,paidAt:new Date(),createdAt:new Date(),returns:[]};
+ assert.equal((await requestReturn("o1",{},new FormData())).ok,true);
+ assert.equal(created,true);
+ orderStub={status:"PAID",userId:null,paidAt:new Date(Date.now()-20*86400000),createdAt:new Date(),returns:[]};
+ assert.match((await requestReturn("o1",{},new FormData())).error,/window/);
+}
+console.log("PASS return-request eligibility");
+
 // Every mutation must reject non-admin access before touching the database.
 for(const [file,functions] of [
  ["src/lib/actions/customers.ts",["saveCustomer"]],
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
- ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction"]]
+ ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction"]]
 ]){
  const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);

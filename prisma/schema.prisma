@@ -53,14 +53,37 @@ model Order {
   name       String
   phone      String?
   address    String
-  totalPence Int
-  status     String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | CANCELLED
+  totalPence Int // grand total = items subtotal + shippingPence
+  shippingPence     Int    @default(0)
+  shippingMethod    String @default("")
+  status     String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | REFUNDED | CANCELLED
+  fulfillmentStatus String @default("UNFULFILLED") // UNFULFILLED | FULFILLED
+  trackingCarrier   String @default("")
+  trackingNumber    String @default("")
+  trackingUrl       String @default("")
+  paymentProvider   String @default("") // "stripe" | "offline" | ""
+  stripeSessionId   String?
+  stripePaymentIntentId String?
+  paidAt     DateTime?
+  fulfilledAt DateTime?
   userId     String?
   customerId String?
   customer   Customer?   @relation(fields: [customerId], references: [id])
   user       User?       @relation(fields: [userId], references: [id])
   items      OrderItem[]
+  returns    Return[]
   createdAt  DateTime    @default(now())
+}
+
+model Return {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reason    String   @default("")
+  status    String   @default("REQUESTED") // REQUESTED | APPROVED | RECEIVED | REFUNDED | DECLINED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {

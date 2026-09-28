@@ -11,6 +11,7 @@ const statusClass: Record<string, string> = {
   PAID: "pill pill--paid",
   PENDING_PAYMENT: "pill pill--pending",
   CANCELLED: "pill pill--cancelled",
+  REFUNDED: "pill pill--cancelled",
 };
 
 export default async function AccountPage() {
