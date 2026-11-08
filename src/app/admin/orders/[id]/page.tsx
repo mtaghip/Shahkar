@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatExact, formatPrice } from "@/lib/money";
 import { shippingRate } from "@/lib/shipping";
+import { orderBreakdown } from "@/lib/order-totals";
+import { vatRegistered, marginSchemeForAntiques } from "@/lib/vat";
 import {
   markOrderPaidAction,
   cancelOrderAction,
@@ -25,11 +27,21 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, returns: { orderBy: { createdAt: "desc" } } },
+    include: {
+      items: { include: { product: { select: { category: true } } } },
+      returns: { orderBy: { createdAt: "desc" } },
+    },
   });
   if (!order) notFound();
 
-  const subtotal = order.totalPence - order.shippingPence;
+  const totals = orderBreakdown(
+    {
+      ...order,
+      items: order.items.map((i) => ({ ...i, category: i.product.category })),
+    },
+    { vatRegistered: vatRegistered(), marginSchemeAntiques: marginSchemeForAntiques() }
+  );
+  const subtotal = totals.subtotalPence;
 
   return (
     <>
@@ -60,8 +72,11 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
           ))}
           <hr />
           <Row label="Subtotal" value={formatExact(subtotal)} />
+          {order.discountPence > 0 && <Row label={`Discount${order.discountCode ? ` (${order.discountCode})` : ""}`} value={`−${formatExact(order.discountPence)}`} />}
           <Row label={`Shipping — ${shippingRate(order.shippingMethod).label}`} value={order.shippingPence === 0 ? "Included" : formatExact(order.shippingPence)} />
           <Row label="Total" value={formatExact(order.totalPence)} strong />
+          {totals.vatPence !== null && <Row label="Includes VAT" value={formatExact(totals.vatPence)} />}
+          <p style={{ marginTop: 10 }}><a className="btn btn--ghost btn--sm" href={`/order/${order.id}/invoice`} target="_blank" rel="noreferrer">Invoice ↗</a></p>
           <div style={{ marginTop: 14, fontSize: 13, color: "var(--muted)" }}>
             <div><strong>Payment:</strong> {order.status.replace("_", " ").toLowerCase()}{order.paymentProvider ? ` · ${order.paymentProvider}` : ""}</div>
             <div><strong>Fulfilment:</strong> {order.fulfillmentStatus.toLowerCase()}</div>

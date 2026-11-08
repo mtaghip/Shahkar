@@ -31,9 +31,22 @@ export async function createCheckoutSession(opts: {
   lines: CheckoutLine[];
   shippingPence: number;
   shippingLabel: string;
+  discountPence?: number;
+  discountLabel?: string;
   origin: string;
 }): Promise<{ id: string; url: string | null }> {
   const stripe = getStripe();
+  // A single-use coupon makes Stripe charge exactly the discounted total.
+  const coupon =
+    opts.discountPence && opts.discountPence > 0
+      ? await stripe.coupons.create({
+          amount_off: opts.discountPence,
+          currency: "gbp",
+          duration: "once",
+          max_redemptions: 1,
+          name: (opts.discountLabel || "Discount").slice(0, 40),
+        })
+      : null;
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
     opts.lines.map((l) => ({
       quantity: l.qty,
@@ -50,6 +63,7 @@ export async function createCheckoutSession(opts: {
     customer_email: opts.email,
     client_reference_id: opts.reference,
     metadata: { orderId: opts.orderId },
+    ...(coupon ? { discounts: [{ coupon: coupon.id }] } : {}),
     payment_intent_data: { metadata: { orderId: opts.orderId } },
     success_url: `${opts.origin}/order/${opts.orderId}?paid=1`,
     cancel_url: `${opts.origin}/checkout?canceled=1`,

@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { placeOrder, type CheckoutState } from "@/lib/actions/checkout";
+import { useActionState, useState, useTransition } from "react";
+import { placeOrder, previewDiscount, type CheckoutState } from "@/lib/actions/checkout";
 import { SHIPPING_RATES, DEFAULT_SHIPPING_ID } from "@/lib/shipping";
 import { formatExact, formatPrice } from "@/lib/money";
 
@@ -31,7 +31,24 @@ export default function CheckoutForm({
   const [shippingId, setShippingId] = useState(DEFAULT_SHIPPING_ID);
   const shipping =
     SHIPPING_RATES.find((r) => r.id === shippingId) ?? SHIPPING_RATES[0];
-  const total = subtotalPence + shipping.pricePence;
+  const [codeInput, setCodeInput] = useState("");
+  const [applied, setApplied] = useState<{ code: string; pence: number } | null>(null);
+  const [codeError, setCodeError] = useState("");
+  const [checking, startCheck] = useTransition();
+  const discount = applied?.pence ?? 0;
+  const total = subtotalPence - discount + shipping.pricePence;
+
+  const applyCode = () =>
+    startCheck(async () => {
+      setCodeError("");
+      const result = await previewDiscount(codeInput);
+      if (result.ok && result.code) {
+        setApplied({ code: result.code, pence: result.discountPence ?? 0 });
+      } else {
+        setApplied(null);
+        setCodeError(result.error ?? "That code isn't valid.");
+      }
+    });
 
   return (
     <div
@@ -97,6 +114,37 @@ export default function CheckoutForm({
           ))}
         </fieldset>
 
+        <div className="field">
+          <span>Discount code</span>
+          <div className="code-row">
+            <input
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  applyCode();
+                }
+              }}
+              placeholder="Optional"
+              autoComplete="off"
+              aria-label="Discount code"
+            />
+            {applied ? (
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => { setApplied(null); setCodeInput(""); }}>
+                Remove
+              </button>
+            ) : (
+              <button type="button" className="btn btn--ghost btn--sm" onClick={applyCode} disabled={checking || !codeInput.trim()}>
+                {checking ? "Checking…" : "Apply"}
+              </button>
+            )}
+          </div>
+          {applied ? <small className="code-ok">Code {applied.code} applied.</small> : null}
+          {codeError ? <small className="code-error" role="alert">{codeError}</small> : null}
+          <input type="hidden" name="discountCode" value={applied?.code ?? ""} />
+        </div>
+
         {state.error ? (
           <p className="authform__error" role="alert">
             {state.error}
@@ -143,6 +191,9 @@ export default function CheckoutForm({
           </div>
         ))}
         <SummaryRow label="Subtotal" value={formatExact(subtotalPence)} />
+        {applied ? (
+          <SummaryRow label={`Discount (${applied.code})`} value={`−${formatExact(applied.pence)}`} />
+        ) : null}
         <SummaryRow
           label={`Shipping — ${shipping.label}`}
           value={shipping.pricePence === 0 ? "Included" : formatExact(shipping.pricePence)}

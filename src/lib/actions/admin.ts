@@ -272,3 +272,57 @@ export async function eraseCustomerAction(
   revalidatePath("/admin/customers");
   redirect(`/admin/customers/${id}?erased=1`);
 }
+
+export interface DiscountFormState {
+  error?: string;
+  ok?: boolean;
+}
+
+/** Create a discount code (percent or fixed amount). */
+export async function createDiscountAction(
+  _prev: DiscountFormState,
+  formData: FormData
+): Promise<DiscountFormState> {
+  const admin = await requireAdmin();
+  const { normaliseCode } = await import("@/lib/discounts");
+  const code = normaliseCode(String(formData.get("code") || ""));
+  const kind = formData.get("kind") === "FIXED" ? "FIXED" : "PERCENT";
+  const rawValue = String(formData.get("value") || "").trim();
+  const value = kind === "FIXED" ? poundsToPence(rawValue) : Number(rawValue);
+  const minSubtotalPence = String(formData.get("minSpend") || "").trim()
+    ? poundsToPence(String(formData.get("minSpend")))
+    : 0;
+  const maxUsesRaw = String(formData.get("maxUses") || "").trim();
+  const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
+  const date = (key: string) => {
+    const v = String(formData.get(key) || "").trim();
+    const d = v ? new Date(v) : null;
+    return d && !Number.isNaN(d.getTime()) ? d : null;
+  };
+
+  if (code.length < 3) return { error: "Use a code of at least 3 letters or numbers." };
+  if (kind === "PERCENT" && (!Number.isInteger(value) || value < 1 || value > 100))
+    return { error: "Percentage must be a whole number from 1 to 100." };
+  if (kind === "FIXED" && value <= 0) return { error: "Enter a valid amount in pounds." };
+  if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses < 1))
+    return { error: "Usage limit must be a whole number, or leave it blank." };
+  if (await prisma.discountCode.findUnique({ where: { code } }))
+    return { error: `The code ${code} already exists.` };
+
+  await prisma.discountCode.create({
+    data: { code, kind, value, minSubtotalPence, maxUses, startsAt: date("startsAt"), endsAt: date("endsAt") },
+  });
+  await audit(admin, "discount.create", code, kind === "PERCENT" ? `${value}%` : `£${value / 100}`);
+  revalidatePath("/admin/discounts");
+  return { ok: true };
+}
+
+export async function toggleDiscountAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  const id = String(formData.get("id") || "");
+  const active = formData.get("active") === "true";
+  if (!id) return;
+  const d = await prisma.discountCode.update({ where: { id }, data: { active } });
+  await audit(admin, active ? "discount.enable" : "discount.disable", d.code);
+  revalidatePath("/admin/discounts");
+}

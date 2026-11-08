@@ -59,8 +59,10 @@ model Order {
   name       String
   phone      String?
   address    String
-  totalPence Int // grand total = items subtotal + shippingPence
+  totalPence Int // grand total = items subtotal - discountPence + shippingPence
   shippingPence     Int    @default(0)
+  discountPence     Int    @default(0) // deducted from the items subtotal
+  discountCode      String @default("")
   shippingMethod    String @default("")
   status     String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | REFUNDED | CANCELLED
   fulfillmentStatus String @default("UNFULFILLED") // UNFULFILLED | FULFILLED
@@ -187,4 +189,18 @@ model NewsletterSubscriber {
   consentAt      DateTime  @default(now())
   unsubscribedAt DateTime?
   createdAt      DateTime  @default(now())
+}
+
+model DiscountCode {
+  id               String    @id @default(cuid())
+  code             String    @unique // stored upper-case
+  kind             String    @default("PERCENT") // PERCENT | FIXED
+  value            Int // percent (1–100) or pence
+  minSubtotalPence Int       @default(0)
+  maxUses          Int?
+  uses             Int       @default(0)
+  active           Boolean   @default(true)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  createdAt        DateTime  @default(now())
 }

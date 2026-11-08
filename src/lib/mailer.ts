@@ -15,6 +15,8 @@ export interface MailOrder {
   address: string;
   totalPence: number;
   shippingPence: number;
+  discountPence?: number;
+  discountCode?: string;
   shippingMethod: string;
   items: MailOrderItem[];
   trackingCarrier?: string;
@@ -34,9 +36,13 @@ function itemLines(order: MailOrder): string {
 }
 
 function totals(order: MailOrder): string {
-  const subtotal = order.totalPence - order.shippingPence;
+  const discount = order.discountPence ?? 0;
+  const subtotal = order.totalPence - order.shippingPence + discount;
   return [
     `Subtotal: ${formatExact(subtotal)}`,
+    ...(discount > 0
+      ? [`Discount${order.discountCode ? ` (${order.discountCode})` : ""}: −${formatExact(discount)}`]
+      : []),
     `Shipping (${shippingRate(order.shippingMethod).label}): ${
       order.shippingPence === 0 ? "Included" : formatExact(order.shippingPence)
     }`,

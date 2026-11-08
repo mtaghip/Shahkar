@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatExact, formatPrice } from "@/lib/money";
 import { shippingRate } from "@/lib/shipping";
+import { orderBreakdown } from "@/lib/order-totals";
+import { vatRegistered, marginSchemeForAntiques } from "@/lib/vat";
 import ReturnForm from "@/components/ReturnForm";
 
 export const dynamic = "force-dynamic";
@@ -19,11 +21,21 @@ export default async function OrderPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, returns: { orderBy: { createdAt: "desc" } } },
+    include: {
+      items: { include: { product: { select: { category: true } } } },
+      returns: { orderBy: { createdAt: "desc" } },
+    },
   });
   if (!order) notFound();
 
-  const subtotal = order.totalPence - order.shippingPence;
+  const totals = orderBreakdown(
+    {
+      ...order,
+      items: order.items.map((i) => ({ ...i, category: i.product.category })),
+    },
+    { vatRegistered: vatRegistered(), marginSchemeAntiques: marginSchemeForAntiques() }
+  );
+  const subtotal = totals.subtotalPence;
   const paid = order.status === "PAID";
   const since = order.paidAt ?? order.createdAt;
   const withinTrial =
@@ -75,6 +87,12 @@ export default async function OrderPage({
             </div>
           ))}
           <Row label="Subtotal" value={formatExact(subtotal)} />
+          {order.discountPence > 0 ? (
+            <Row
+              label={`Discount${order.discountCode ? ` (${order.discountCode})` : ""}`}
+              value={`−${formatExact(order.discountPence)}`}
+            />
+          ) : null}
           <Row
             label={`Shipping — ${shippingRate(order.shippingMethod).label}`}
             value={order.shippingPence === 0 ? "Included" : formatExact(order.shippingPence)}
@@ -94,6 +112,9 @@ export default async function OrderPage({
             <span>Total</span>
             <span>{formatExact(order.totalPence)}</span>
           </div>
+          {totals.vatPence !== null ? (
+            <Row label="Includes VAT" value={formatExact(totals.vatPence)} />
+          ) : null}
         </div>
 
         <div style={{ padding: "20px 24px", fontSize: 14, lineHeight: 1.7, color: "var(--muted-2)", display: "grid", gap: 18 }}>
@@ -152,6 +173,9 @@ export default async function OrderPage({
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 36 }}>
         <Link href="/collection" className="btn btn--solid">
           Continue browsing
+        </Link>
+        <Link href={`/order/${order.id}/invoice`} className="btn btn--outline">
+          Invoice
         </Link>
         <Link href="/account" className="btn btn--outline">
           View your orders

@@ -36,6 +36,8 @@ function toMailOrder(o: {
   address: string;
   totalPence: number;
   shippingPence: number;
+  discountPence?: number;
+  discountCode?: string;
   shippingMethod: string;
   trackingCarrier?: string;
   trackingNumber?: string;
@@ -87,6 +89,13 @@ export async function expireOrder(orderId: string): Promise<void> {
       where: { id: orderId },
       data: { status: "CANCELLED" },
     });
+    // Give the discount-code use back — the order never completed.
+    if (order.discountCode) {
+      await tx.discountCode.updateMany({
+        where: { code: order.discountCode, uses: { gt: 0 } },
+        data: { uses: { decrement: 1 } },
+      });
+    }
     await restockOrderItems(tx, orderId);
   });
   invalidateProducts();

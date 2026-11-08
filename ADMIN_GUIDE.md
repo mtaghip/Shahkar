@@ -43,3 +43,9 @@ Product images are stored as optimised WebP bytes in PostgreSQL. Monitor databas
 - **Subject access:** on a customer's page choose *Download their data (JSON)*. Signed-in customers can also download their own data from their account page.
 - **Erasure:** type ERASE on the customer's page. This deletes their login, enquiries, newsletter record and email history and anonymises the profile. Order records are kept for six years (tax law). Every export and erasure is recorded in *Activity*.
 - **Cookies:** the site sets only two strictly necessary cookies (bag and sign-in), so no consent banner is required. If you later add analytics or marketing tools, you will need one.
+
+## Discounts, VAT and invoices
+
+- **Discount codes:** *Admin → Discounts*. Choose a percentage or a fixed £ amount, with an optional minimum spend, usage limit and start/end dates. Codes apply to items, not delivery, and work with card payments. Switch a code off at any time; cancelling an unpaid order gives its code use back.
+- **Invoices:** every order has an invoice (*Invoice* on the order page, or *Invoice ↗* in the admin) that customers can print or save as PDF.
+- **VAT:** prices are shown including VAT. Once you set `NEXT_PUBLIC_VAT_NUMBER` in Vercel and redeploy, orders and invoices show the VAT included and invoices become VAT invoices. If you sell antiques under the second-hand margin scheme, also set `VAT_MARGIN_SCHEME_ANTIQUES=true` — VAT is then not itemised for antique lines, as HMRC requires. Check your VAT treatment with your accountant.

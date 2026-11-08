@@ -11,12 +11,32 @@ import { getCurrentUser } from "@/lib/auth";
 import { shippingRate } from "@/lib/shipping";
 import { stripeConfigured, createCheckoutSession } from "@/lib/stripe";
 import { sendMail, orderReceivedEmail } from "@/lib/mailer";
+import { normaliseCode, discountProblem, computeDiscount } from "@/lib/discounts";
 
 export interface CheckoutState {
   error?: string;
 }
 
 class SoldOutError extends Error {}
+class DiscountUnavailableError extends Error {}
+
+export interface DiscountPreview {
+  ok?: boolean;
+  error?: string;
+  code?: string;
+  discountPence?: number;
+}
+
+/** Check a code against the current bag (for the checkout's live total). */
+export async function previewDiscount(rawCode: string): Promise<DiscountPreview> {
+  const code = normaliseCode(rawCode);
+  if (!code) return { error: "Enter a code." };
+  const { totalPence: subtotal } = await getCartDetail();
+  const rule = await prisma.discountCode.findUnique({ where: { code } });
+  const problem = discountProblem(rule, subtotal);
+  if (problem || !rule) return { error: problem ?? "That code isn't valid." };
+  return { ok: true, code, discountPence: computeDiscount(rule, subtotal) };
+}
 
 function makeReference(): string {
   return "SC-" + randomBytes(3).toString("hex").toUpperCase();
@@ -58,9 +78,20 @@ export async function placeOrder(
         "An item is no longer available in that quantity. Please update your bag.",
     };
 
+  // Discount codes are re-validated here; the client preview is only a hint.
+  const code = normaliseCode(String(formData.get("discountCode") || ""));
+  let discountPence = 0;
+  let discountRule: Awaited<ReturnType<typeof prisma.discountCode.findUnique>> = null;
+  if (code) {
+    discountRule = await prisma.discountCode.findUnique({ where: { code } });
+    const problem = discountProblem(discountRule, subtotalPence);
+    if (problem) return { error: problem };
+    discountPence = computeDiscount(discountRule!, subtotalPence);
+  }
+
   const user = await getCurrentUser();
   const address = [line1, city, postcode].filter(Boolean).join(", ");
-  const totalPence = subtotalPence + shipping.pricePence;
+  const totalPence = subtotalPence - discountPence + shipping.pricePence;
 
   let order;
   try {
@@ -84,6 +115,18 @@ export async function placeOrder(
         if (claimed.count !== 1) throw new SoldOutError();
       }
 
+      if (discountRule) {
+        const used = await tx.discountCode.updateMany({
+          where: {
+            id: discountRule.id,
+            active: true,
+            ...(discountRule.maxUses !== null ? { uses: { lt: discountRule.maxUses } } : {}),
+          },
+          data: { uses: { increment: 1 } },
+        });
+        if (used.count !== 1) throw new DiscountUnavailableError();
+      }
+
       const customer = await tx.customer.upsert({
         where: { email },
         update: {},
@@ -99,6 +142,8 @@ export async function placeOrder(
           totalPence,
           shippingPence: shipping.pricePence,
           shippingMethod: shipping.id,
+          discountPence,
+          discountCode: discountRule ? code : "",
           status: "PENDING_PAYMENT",
           paymentProvider: stripeConfigured() ? "stripe" : "offline",
           userId: user?.id ?? null,
@@ -115,6 +160,9 @@ export async function placeOrder(
       });
     });
   } catch (e) {
+    if (e instanceof DiscountUnavailableError) {
+      return { error: "That code has just been used up. Please remove it and try again." };
+    }
     if (e instanceof SoldOutError) {
       return {
         error:
@@ -144,6 +192,8 @@ export async function placeOrder(
         })),
         shippingPence: shipping.pricePence,
         shippingLabel: shipping.label,
+        discountPence,
+        discountLabel: discountRule ? `Code ${code}` : "",
         origin: await origin(),
       });
       stripeUrl = session.url;
@@ -163,6 +213,8 @@ export async function placeOrder(
       address: order.address,
       totalPence: order.totalPence,
       shippingPence: order.shippingPence,
+      discountPence: order.discountPence,
+      discountCode: order.discountCode,
       shippingMethod: order.shippingMethod,
       items: lines.map((l) => ({
         name: l.product.name,

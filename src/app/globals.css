@@ -1063,3 +1063,87 @@ img {
   font-size: 12px !important;
   color: var(--muted) !important;
 }
+
+/* ---------- checkout: discount code ---------- */
+.code-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.code-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-transform: uppercase;
+}
+.code-ok {
+  color: #0a6b45;
+  font-size: 12px;
+}
+.code-error {
+  color: #b3261e;
+  font-size: 12px;
+}
+
+/* ---------- invoice ---------- */
+.invoice__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+.invoice__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+.invoice__muted {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 6px 0 0;
+}
+.invoice__label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.invoice__to {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.invoice__table {
+  background: #fff;
+  margin-bottom: 20px;
+}
+.invoice__totals {
+  margin-left: auto;
+  max-width: 360px;
+}
+.invoice__line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+@media print {
+  .announce,
+  .header,
+  .footer,
+  .invoice__actions {
+    display: none !important;
+  }
+  body,
+  .page {
+    background: #fff !important;
+  }
+  .invoice {
+    padding: 0 !important;
+  }
+}

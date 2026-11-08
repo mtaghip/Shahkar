@@ -91,6 +91,32 @@ assert.equal(cleanSpecs("  Date : c. 1910 \n\njunk"),"Date: c. 1910");
 assert.equal(parseSpecs(Array.from({length:40},(_,i)=>"K"+i+": v").join("\n")).length,20);
 console.log("PASS specification parsing");
 
+// Discounts and VAT.
+{
+ const {computeDiscount,discountProblem,normaliseCode}=load("src/lib/discounts.ts");
+ assert.equal(normaliseCode(" summer-10 "),"SUMMER-10");
+ assert.equal(computeDiscount({kind:"PERCENT",value:10},1840000),184000);
+ assert.equal(computeDiscount({kind:"FIXED",value:50000},20000),20000,"never more than the subtotal");
+ const rule={code:"X",kind:"PERCENT",value:10,minSubtotalPence:100000,maxUses:1,uses:0,active:true,startsAt:null,endsAt:null};
+ assert.equal(discountProblem(rule,200000),null);
+ assert.match(discountProblem(rule,50000),/minimum spend/);
+ assert.match(discountProblem({...rule,uses:1},200000),/fully used/);
+ assert.match(discountProblem({...rule,endsAt:new Date(Date.now()-1000)},200000),/expired/);
+ assert.match(discountProblem({...rule,active:false},200000),/isn't valid/);
+ assert.match(discountProblem(null,200000),/isn't valid/);
+ const {vatIncluded}=load("src/lib/vat.ts");
+ assert.equal(vatIncluded(12000),2000,"£120 inc. VAT contains £20");
+ const {orderBreakdown}=load("src/lib/order-totals.ts",{"./vat":{VAT_RATE:20,vatIncluded}});
+ const order={totalPence:115000,shippingPence:5000,discountPence:10000,items:[{pricePence:60000,qty:1,category:"antique"},{pricePence:60000,qty:1,category:"contemporary"}]};
+ const std=orderBreakdown(order,{vatRegistered:true,marginSchemeAntiques:false});
+ assert.equal(std.subtotalPence,120000); assert.equal(std.vatPence,vatIncluded(115000)); assert.equal(std.marginSchemePence,0);
+ const ms=orderBreakdown(order,{vatRegistered:true,marginSchemeAntiques:true});
+ assert.equal(ms.marginSchemePence,55000,"antique share after its half of the discount");
+ assert.equal(ms.vatPence,vatIncluded(60000));
+ assert.equal(orderBreakdown(order,{vatRegistered:false,marginSchemeAntiques:false}).vatPence,null);
+}
+console.log("PASS discounts, VAT and order totals");
+
 // Customer return requests enforce paid status and the 14-day window.
 {
  let created=false,orderStub={status:"PENDING_PAYMENT",userId:null,paidAt:null,createdAt:new Date(),returns:[]};
@@ -135,7 +161,7 @@ console.log("PASS public form validation, honeypot and persistence");
 for(const [file,functions] of [
  ["src/lib/actions/customers.ts",["saveCustomer"]],
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
- ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction","setEnquiryStatusAction","eraseCustomerAction"]]
+ ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction","setEnquiryStatusAction","eraseCustomerAction","createDiscountAction","toggleDiscountAction"]]
 ]){
  const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x,invalidateProducts:()=>{}},"@/lib/specs":{cleanSpecs:x=>x},"@/lib/audit":{audit:async()=>{}}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);
