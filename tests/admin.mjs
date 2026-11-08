@@ -124,6 +124,7 @@ console.log("PASS discounts, VAT and order totals");
   "@/lib/prisma":{prisma:{order:{findUnique:async()=>orderStub},return:{create:async()=>{created=true;}}}},
   "@/lib/auth":{getCurrentUser:async()=>null},
   "next/cache":{revalidatePath(){}},
+  "@/lib/trial":load("src/lib/trial.ts",{}),
  });
  assert.equal((await requestReturn("o1",{},new FormData())).error,"Only paid orders can be returned.");
  assert.equal(created,false);
@@ -137,7 +138,7 @@ console.log("PASS return-request eligibility");
 
 // Public forms: honeypot, validation, persistence.
 {
- const created=[];let mailed=0;
+ const created=[];
  const {submitEnquiry,subscribeNewsletter}=load("src/lib/actions/forms.ts",{
   "next/cache":{revalidatePath(){}},
   "@/lib/prisma":{prisma:{enquiry:{create:async({data})=>{created.push(["enquiry",data]);return {id:"e1",...data};}},customer:{upsert:async()=>({}),updateMany:async()=>({})},newsletterSubscriber:{upsert:async({create})=>{created.push(["sub",create]);}}}},

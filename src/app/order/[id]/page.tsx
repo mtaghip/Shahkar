@@ -6,11 +6,11 @@ import { shippingRate } from "@/lib/shipping";
 import { orderBreakdown } from "@/lib/order-totals";
 import { vatRegistered, marginSchemeForAntiques } from "@/lib/vat";
 import ReturnForm from "@/components/ReturnForm";
+import { withinTrial as inTrialWindow } from "@/lib/trial";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your order — Shahkar Carpets" };
 
-const TRIAL_DAYS = 14;
 const OPEN_RETURN = ["REQUESTED", "APPROVED", "RECEIVED"];
 
 export default async function OrderPage({
@@ -38,8 +38,7 @@ export default async function OrderPage({
   const subtotal = totals.subtotalPence;
   const paid = order.status === "PAID";
   const since = order.paidAt ?? order.createdAt;
-  const withinTrial =
-    Date.now() < since.getTime() + TRIAL_DAYS * 86400_000;
+  const withinTrial = inTrialWindow(since);
   const openReturn = order.returns.find((r) => OPEN_RETURN.includes(r.status));
   const canReturn = paid && withinTrial && !openReturn;
 

@@ -3,13 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { trialDeadline } from "@/lib/trial";
 
 export interface ReturnState {
   error?: string;
   ok?: boolean;
 }
 
-const TRIAL_DAYS = 14;
 const OPEN = ["REQUESTED", "APPROVED", "RECEIVED"];
 
 /** A customer requests a return within the 14-day home-trial window. */
@@ -38,7 +38,7 @@ export async function requestReturn(
     return { error: "Only paid orders can be returned." };
   }
   const since = order.paidAt ?? order.createdAt;
-  const deadline = new Date(since.getTime() + TRIAL_DAYS * 86400_000);
+  const deadline = trialDeadline(since);
   if (Date.now() > deadline.getTime()) {
     return { error: "The 14-day home-trial window for this order has passed." };
   }
