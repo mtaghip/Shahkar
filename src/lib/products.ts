@@ -86,9 +86,13 @@ export function countByCategory() {
   return cachedCounts();
 }
 
-/** Call after any change to products or stock. */
+/**
+ * Call after any change to products or stock. `expire: 0` drops the cached
+ * entries immediately (no stale-while-revalidate), and works from both server
+ * actions and route handlers such as the Stripe webhook.
+ */
 export function invalidateProducts() {
-  revalidateTag(PRODUCTS_TAG);
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
 
 export function createProduct(data: Prisma.ProductCreateInput) {

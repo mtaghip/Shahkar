@@ -9,6 +9,7 @@
 import { createHash } from "node:crypto";
 import { chromium } from "playwright";
 import { PrismaClient } from "@prisma/client";
+import sharp from "sharp";
 
 const B = (process.env.E2E_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@shahkarcarpets.co.uk").toLowerCase();
@@ -85,6 +86,27 @@ try {
   await admin.click('button:has-text("Save changes")');
   await admin.waitForURL("**/admin/products?updated=1");
   ok("price edit visible immediately despite caching", /£9,123/.test(await (await fetch(B + "/collection")).text()));
+
+  // Photo upload → optimised storefront image → lightbox
+  await admin.goto(B + "/admin/products");
+  await admin.click('a:has-text("Ziegler Sultanabad")');
+  await admin.waitForURL("**/edit");
+  const photos = await Promise.all(
+    ["#8d3229", "#2a4d66"].map((c) => sharp({ create: { width: 1800, height: 1400, channels: 3, background: c } }).jpeg().toBuffer())
+  );
+  await admin.setInputFiles('input[type="file"]', photos.map((buffer, i) => ({ name: `p${i}.jpg`, mimeType: "image/jpeg", buffer })));
+  await admin.waitForFunction(() => document.querySelectorAll(".media-list figure").length === 2, null, { timeout: 30000 });
+  await admin.click('button:has-text("Save changes")');
+  await admin.waitForURL("**/admin/products?updated=1");
+  const shopper = await newPage();
+  await shopper.goto(B + "/product/ziegler");
+  ok("uploaded photo served through the image optimiser", (await shopper.locator(".gallery-main img").getAttribute("src"))?.startsWith("/_next/image"));
+  await shopper.click(".gallery-main");
+  await shopper.waitForSelector("dialog.lightbox[open]");
+  await shopper.keyboard.press("ArrowRight");
+  ok("lightbox opens and navigates", /2 \/ 2/.test(await shopper.textContent(".lightbox__bar")));
+  await shopper.keyboard.press("Escape");
+  ok("lightbox closes with Esc", !(await shopper.$eval("dialog.lightbox", (d) => d.open)));
 
   step("Checkout, discount, VAT-ready totals, invoice");
   const buyer = await newPage();
