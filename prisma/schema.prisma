@@ -166,3 +166,25 @@ model AuditLog {
   createdAt  DateTime @default(now())
   @@index([createdAt])
 }
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String   @default("")
+  roomSize  String   @default("")
+  budget    String   @default("")
+  message   String   @default("")
+  product   String   @default("") // product slug when sent from a product page
+  status    String   @default("NEW") // NEW | REPLIED | CLOSED
+  createdAt DateTime @default(now())
+  @@index([status, createdAt])
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  consentAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+}

@@ -30,3 +30,8 @@ Product images are stored as optimised WebP bytes in PostgreSQL. Monitor databas
 - **Sign-in protection:** repeated failed sign-ins are rate-limited per email and per network address (a short wait, then it resets). Registration and password-reset requests are rate-limited too.
 - **Forgotten passwords:** customers and admins can use *Forgotten your password?* on the sign-in page. The link is emailed (requires the Resend setup), works once and expires after an hour. Administrator passwords must be at least 12 characters. Changing a password signs that account out on every other device.
 - **Activity:** *Admin → Activity* lists the last 200 administrator actions and admin sign-ins (including failed attempts) with who, what and when.
+
+## Inbox
+
+- **Enquiries:** the contact form and every product's *Request a home trial* button save an enquiry to *Admin → Inbox* (and email you when Resend is configured). Reply by email, then mark it replied or closed.
+- **Newsletter:** footer sign-ups are stored with the time consent was given. Download the list as CSV from the Inbox. (Sending campaigns is done in your email tool; unsubscribes must be honoured there.)

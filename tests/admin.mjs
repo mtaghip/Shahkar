@@ -109,11 +109,33 @@ console.log("PASS specification parsing");
 }
 console.log("PASS return-request eligibility");
 
+// Public forms: honeypot, validation, persistence.
+{
+ const created=[];let mailed=0;
+ const {submitEnquiry,subscribeNewsletter}=load("src/lib/actions/forms.ts",{
+  "next/cache":{revalidatePath(){}},
+  "@/lib/prisma":{prisma:{enquiry:{create:async({data})=>{created.push(["enquiry",data]);return {id:"e1",...data};}},customer:{upsert:async()=>({}),updateMany:async()=>({})},newsletterSubscriber:{upsert:async({create})=>{created.push(["sub",create]);}}}},
+  "@/lib/admin-validation":{validEmail},
+  "@/lib/rate-limit":{isRateLimited:async()=>false,clientIp:async()=>"1.2.3.4"},
+  "@/lib/mailer":{sendMail:async()=>{mailed++;return {ok:true};}},
+ });
+ const fd=o=>{const f=new FormData();for(const [k,v] of Object.entries(o))f.set(k,v);return f;};
+ assert.equal((await submitEnquiry({},fd({name:"Bot",email:"bot@example.com",company:"spam inc"}))).ok,true);
+ assert.equal(created.length,0,"honeypot submissions are discarded");
+ assert.match((await submitEnquiry({},fd({name:"",email:"x"}))).error,/valid email/);
+ assert.equal((await submitEnquiry({},fd({name:"Ann",email:"Ann@Example.com",message:"A runner please"}))).ok,true);
+ assert.equal(created[0][1].email,"ann@example.com");
+ assert.match((await subscribeNewsletter({},fd({email:"nope"}))).error,/valid email/);
+ assert.equal((await subscribeNewsletter({},fd({email:"Reader@Example.com"}))).ok,true);
+ assert.equal(created[1][1].email,"reader@example.com");
+}
+console.log("PASS public form validation, honeypot and persistence");
+
 // Every mutation must reject non-admin access before touching the database.
 for(const [file,functions] of [
  ["src/lib/actions/customers.ts",["saveCustomer"]],
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
- ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction"]]
+ ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction","setEnquiryStatusAction"]]
 ]){
  const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x,invalidateProducts:()=>{}},"@/lib/specs":{cleanSpecs:x=>x},"@/lib/audit":{audit:async()=>{}}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);

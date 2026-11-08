@@ -1,4 +1,5 @@
 import EnquiryForm from "@/components/EnquiryForm";
+import { getBySlug } from "@/lib/products";
 
 export const metadata = {
   alternates: { canonical: "/contact" },
@@ -24,7 +25,13 @@ const details = [
   },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ piece?: string }>;
+}) {
+  const { piece } = await searchParams;
+  const product = piece ? await getBySlug(String(piece).slice(0, 100)) : null;
   return (
     <section
       className="wrap"
@@ -102,7 +109,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <EnquiryForm />
+      <EnquiryForm product={product?.slug} productName={product?.name} />
     </section>
   );
 }

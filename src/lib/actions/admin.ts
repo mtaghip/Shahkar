@@ -238,3 +238,15 @@ export async function processReturnAction(formData: FormData): Promise<void> {
   revalidateOrder(ret.orderId);
   revalidatePath("/admin/returns");
 }
+
+/** Move an enquiry through NEW → REPLIED → CLOSED. */
+export async function setEnquiryStatusAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  const id = String(formData.get("id") || "");
+  const status = String(formData.get("status") || "");
+  if (!id || !["NEW", "REPLIED", "CLOSED"].includes(status)) return;
+  await prisma.enquiry.update({ where: { id }, data: { status } });
+  await audit(admin, "enquiry." + status.toLowerCase(), id);
+  revalidatePath("/admin/inbox");
+  revalidatePath("/admin");
+}

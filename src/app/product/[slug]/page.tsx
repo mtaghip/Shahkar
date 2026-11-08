@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ImageSlot from "@/components/ImageSlot";
+import ProductGallery from "@/components/ProductGallery";
 import AddToBagButton from "@/components/AddToBagButton";
 import { parseSpecs } from "@/lib/specs";
 import { getBySlug } from "@/lib/products";
@@ -113,18 +113,12 @@ export default async function ProductPage({
       >
         {/* images */}
         <div style={{ borderRight: "1px solid var(--line)" }}>
-          <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="1/1" sizes="(max-width: 900px) 100vw, 50vw" priority>
-            {soldOut ? <span className="tag-reserved">Reserved</span> : null}
-          </ImageSlot>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-              borderTop: "1px solid var(--line)",
-            }}
-          >
-            {product.imageIds.slice(1).map((id,index)=><a key={id} href={"/api/media/"+id} target="_blank" rel="noreferrer"><ImageSlot src={"/api/media/"+id} caption={product.name+" — photo "+(index+2)} ratio="1/1" sizes="(max-width: 900px) 33vw, 17vw"/></a>)}
-          </div>
+          <ProductGallery
+            imageIds={product.imageIds}
+            name={product.name}
+            caption={product.imageCaption || product.name}
+            reserved={soldOut}
+          />
         </div>
 
         {/* info */}
@@ -181,7 +175,7 @@ export default async function ProductPage({
             }}
           >
             <AddToBagButton productId={product.id} soldOut={soldOut} />
-            <Link href="/contact" className="btn btn--outline btn--block">
+            <Link href={`/contact?piece=${product.slug}`} className="btn btn--outline btn--block">
               Request a home trial
             </Link>
           </div>
