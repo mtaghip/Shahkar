@@ -11,17 +11,18 @@ import {
 
 type Tx = Prisma.TransactionClient;
 
-/** Return each line's quantity to stock and free reserved antiques. */
+/** Return each line's quantity to stock (atomically) and free reserved antiques. */
 export async function restockOrderItems(tx: Tx, orderId: string): Promise<void> {
-  const items = await tx.orderItem.findMany({ where: { orderId } });
+  const items = await tx.orderItem.findMany({
+    where: { orderId },
+    include: { product: { select: { category: true } } },
+  });
   for (const it of items) {
-    const product = await tx.product.findUnique({ where: { id: it.productId } });
-    if (!product) continue;
-    await tx.product.update({
-      where: { id: product.id },
+    await tx.product.updateMany({
+      where: { id: it.productId },
       data: {
-        stock: product.stock + it.qty,
-        reserved: product.category === "antique" ? false : product.reserved,
+        stock: { increment: it.qty },
+        ...(it.product.category === "antique" ? { reserved: false } : {}),
       },
     });
   }

@@ -15,6 +15,8 @@ export interface CheckoutState {
   error?: string;
 }
 
+class SoldOutError extends Error {}
+
 function makeReference(): string {
   return "SC-" + randomBytes(3).toString("hex").toUpperCase();
 }
@@ -59,50 +61,67 @@ export async function placeOrder(
   const address = [line1, city, postcode].filter(Boolean).join(", ");
   const totalPence = subtotalPence + shipping.pricePence;
 
-  const order = await prisma.$transaction(async (tx) => {
-    const customer = await tx.customer.upsert({
-      where: { email },
-      update: {},
-      create: { email, name, phone, address },
-    });
-    const created = await tx.order.create({
-      data: {
-        reference: makeReference(),
-        name,
-        email,
-        phone: phone || null,
-        address,
-        totalPence,
-        shippingPence: shipping.pricePence,
-        shippingMethod: shipping.id,
-        status: "PENDING_PAYMENT",
-        paymentProvider: stripeConfigured() ? "stripe" : "offline",
-        userId: user?.id ?? null,
-        customerId: customer.id,
-        items: {
-          create: lines.map((l) => ({
-            productId: l.product.id,
-            name: l.product.name,
-            pricePence: l.product.pricePence,
-            qty: l.qty,
-          })),
-        },
-      },
-    });
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+      // Atomically reserve stock first. The conditional update only succeeds
+      // while enough unreserved stock remains, so two buyers racing for the
+      // same one-of-a-kind piece cannot both win.
+      for (const l of lines) {
+        const claimed = await tx.product.updateMany({
+          where: {
+            id: l.product.id,
+            status: "ACTIVE",
+            reserved: false,
+            stock: { gte: l.qty },
+          },
+          data: {
+            stock: { decrement: l.qty },
+            ...(l.product.category === "antique" ? { reserved: true } : {}),
+          },
+        });
+        if (claimed.count !== 1) throw new SoldOutError();
+      }
 
-    // Decrement stock; reserve unique (antique) pieces off the shopfront.
-    for (const l of lines) {
-      await tx.product.update({
-        where: { id: l.product.id },
+      const customer = await tx.customer.upsert({
+        where: { email },
+        update: {},
+        create: { email, name, phone, address },
+      });
+      return tx.order.create({
         data: {
-          stock: Math.max(0, l.product.stock - l.qty),
-          reserved: l.product.category === "antique" ? true : l.product.reserved,
+          reference: makeReference(),
+          name,
+          email,
+          phone: phone || null,
+          address,
+          totalPence,
+          shippingPence: shipping.pricePence,
+          shippingMethod: shipping.id,
+          status: "PENDING_PAYMENT",
+          paymentProvider: stripeConfigured() ? "stripe" : "offline",
+          userId: user?.id ?? null,
+          customerId: customer.id,
+          items: {
+            create: lines.map((l) => ({
+              productId: l.product.id,
+              name: l.product.name,
+              pricePence: l.product.pricePence,
+              qty: l.qty,
+            })),
+          },
         },
       });
+    });
+  } catch (e) {
+    if (e instanceof SoldOutError) {
+      return {
+        error:
+          "Sorry — one of these pieces has just been reserved by another customer. Please review your bag.",
+      };
     }
-
-    return created;
-  });
+    throw e;
+  }
 
   await writeCart([]);
   revalidatePath("/");

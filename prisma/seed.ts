@@ -12,21 +12,44 @@ function hashPassword(password: string): string {
 
 async function main() {
   // ---- admin user ----
-  const email = process.env.ADMIN_EMAIL || "admin@shahkarcarpets.co.uk";
-  const password = process.env.ADMIN_PASSWORD || "shahkar-admin";
-  const passwordHash = hashPassword(password);
+  // ADMIN_PASSWORD, when set, (re)sets the admin password on every deploy so
+  // the owner can rotate it from Vercel. When it is NOT set we never touch an
+  // existing password, and in production we refuse to invent a default one.
+  const isProd = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+  const email = (process.env.ADMIN_EMAIL || "admin@shahkarcarpets.co.uk").trim().toLowerCase();
+  let configured = process.env.ADMIN_PASSWORD?.trim() || "";
 
-  await prisma.user.upsert({
-    where: { email },
-    update: { role: "admin", passwordHash },
-    create: {
-      email,
-      name: "Shahkar Admin",
-      role: "admin",
-      passwordHash,
-    },
-  });
-  console.log(`✓ Admin user ready: ${email}`);
+  // A weak or public-default password is never applied in production. We warn
+  // instead of failing so a deploy is never blocked by this check.
+  if (configured && isProd && (configured.length < 12 || configured === "shahkar-admin")) {
+    console.warn(
+      "! ADMIN_PASSWORD ignored: use at least 12 characters and not the public default. Existing password kept."
+    );
+    configured = "";
+  }
+
+  const existingAdmin = await prisma.user.findUnique({ where: { email } });
+  if (configured) {
+    const passwordHash = hashPassword(configured);
+    await prisma.user.upsert({
+      where: { email },
+      update: { role: "admin", passwordHash },
+      create: { email, name: "Shahkar Admin", role: "admin", passwordHash },
+    });
+    console.log(`✓ Admin user ready: ${email} (password from ADMIN_PASSWORD)`);
+  } else if (existingAdmin) {
+    if (existingAdmin.role !== "admin") {
+      await prisma.user.update({ where: { email }, data: { role: "admin" } });
+    }
+    console.log(`✓ Admin user kept: ${email} (ADMIN_PASSWORD not set — password unchanged)`);
+  } else if (!isProd) {
+    await prisma.user.create({
+      data: { email, name: "Shahkar Admin", role: "admin", passwordHash: hashPassword("shahkar-admin") },
+    });
+    console.log(`✓ Dev admin created: ${email} / shahkar-admin`);
+  } else {
+    console.warn("! No admin account created: set ADMIN_EMAIL and ADMIN_PASSWORD in Vercel and redeploy.");
+  }
 
   // ---- products ----
   // Only seed the catalogue when it's empty, so re-running the seed (e.g. on
