@@ -131,6 +131,38 @@ src/
   hundred pieces. When it grows, move them to object storage (e.g. Vercel Blob)
   by replacing `src/app/api/admin/media` and `src/app/api/media/[id]`.
 
+## Checks and CI
+
+| Command                | What it does                                                        |
+| ---------------------- | ------------------------------------------------------------------- |
+| `npm run typecheck`    | TypeScript (`tsc --noEmit`)                                         |
+| `npm run lint`         | ESLint with `next/core-web-vitals` + TypeScript rules               |
+| `npm run format`       | Prettier (`format:check` to verify without writing)                 |
+| `npm test`             | Fast unit/integration checks against an in-memory Postgres (pglite) |
+| `npm run test:e2e`     | Browser end-to-end suite (Playwright) against a running build       |
+
+The e2e suite drives the real app: sign-up, cart, checkout (including ten
+parallel buyers racing for one antique — exactly one wins), discount codes,
+returns, admin edits, photo upload and the gallery lightbox, password reset and
+GDPR export/erasure. Run it against a **fresh, seeded** database:
+
+```sh
+createdb shahkar_e2e
+export DATABASE1_DATABASE_URL_UNPOOLED=postgresql://localhost/shahkar_e2e
+npx prisma migrate deploy && npm run db:seed
+npm run build && npm start &
+npx playwright install chromium   # first time only
+npm run test:e2e
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs all of the above on every push
+and pull request, with a Postgres service container.
+
+**Deferred upgrades:** Prisma 7+ requires moving to driver adapters and a
+generated client path, and TypeScript 7 (the native compiler) isn't yet
+supported by Next.js's type plugin; both stay on Prisma 6.19 / TypeScript 5.9
+until that settles.
+
 ## Notes on scope
 
 - **Payments (Stripe):** set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in
@@ -145,13 +177,14 @@ src/
 - **Email setup:** verify a sending domain with Resend, then add
   RESEND_API_KEY and EMAIL_FROM in Vercel. EMAIL_REPLY_TO is optional. The app
   records when Resend accepts a message; check Resend for delivery and bounces.
-  Bulk marketing and unsubscribe management are intentionally not included.
+  Newsletter sign-ups are stored with one-click unsubscribe
+  (`/newsletter/unsubscribe`) and can be exported as CSV from the admin; send
+  campaigns from a dedicated tool.
 - **Deploying:** production uses the Vercel Neon integration connection.
   Set a strong AUTH_SECRET (production sign-in is disabled without it),
   ADMIN_EMAIL and ADMIN_PASSWORD in Vercel. npm run vercel-build generates
   Prisma, runs tests and builds before applying the migration and seed.
-- **Checks:** run npm test for isolated migration/backfill, photo, validation,
-  email-lock and admin-access checks.
+- **Checks:** see [Checks and CI](#checks-and-ci).
 - Copy (est. 1974, the Stow-on-the-Wold showroom, the grandfather-in-Tehran
   story) is placeholder narrative from the design brief.
 
