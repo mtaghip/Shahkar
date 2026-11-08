@@ -6,10 +6,7 @@ import Link from "next/link";
 import type { ProductFormState } from "@/lib/actions/admin";
 import type { Product } from "@prisma/client";
 
-type Action = (
-  prev: ProductFormState,
-  formData: FormData
-) => Promise<ProductFormState>;
+type Action = (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>;
 
 export default function ProductForm({
   action,
@@ -21,21 +18,26 @@ export default function ProductForm({
   submitLabel: string;
 }) {
   const [uploading, setUploading] = useState(false);
-  const [state, formAction, pending] = useActionState<
-    ProductFormState,
-    FormData
-  >(action, {});
+  const [state, formAction, pending] = useActionState<ProductFormState, FormData>(action, {});
 
-  const priceValue = product
-    ? (product.pricePence / 100).toString()
-    : "";
+  const priceValue = product ? (product.pricePence / 100).toString() : "";
 
   return (
     <form action={formAction}>
       <div className="pform">
-        <label className="field"><span>Publishing status</span><select name="status" defaultValue={product?.status ?? "DRAFT"}><option value="DRAFT">Draft — hidden from the shop</option><option value="ACTIVE">Active — visible in the shop</option><option value="ARCHIVED">Archived — hidden from the shop</option></select></label>
-        <label className="field"><span>SKU / stock reference</span><input name="sku" maxLength={100} defaultValue={product?.sku}/></label>
-        <ProductMedia initial={product?.imageIds} onBusy={setUploading}/>
+        <label className="field">
+          <span>Publishing status</span>
+          <select name="status" defaultValue={product?.status ?? "DRAFT"}>
+            <option value="DRAFT">Draft — hidden from the shop</option>
+            <option value="ACTIVE">Active — visible in the shop</option>
+            <option value="ARCHIVED">Archived — hidden from the shop</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>SKU / stock reference</span>
+          <input name="sku" maxLength={100} defaultValue={product?.sku} />
+        </label>
+        <ProductMedia initial={product?.imageIds} onBusy={setUploading} />
         <label className="field field--wide">
           <span>Name</span>
           <input type="text" name="name" required defaultValue={product?.name} />
@@ -75,12 +77,7 @@ export default function ProductForm({
         </label>
         <label className="field">
           <span>Stock (units available)</span>
-          <input
-            type="number"
-            name="stock"
-            min={0}
-            defaultValue={product?.stock ?? 1}
-          />
+          <input type="number" name="stock" min={0} defaultValue={product?.stock ?? 1} />
         </label>
 
         <label className="field field--wide">
@@ -95,20 +92,12 @@ export default function ProductForm({
 
         <label className="field field--wide">
           <span>Description</span>
-          <textarea
-            name="description"
-            rows={5}
-            defaultValue={product?.description}
-          />
+          <textarea name="description" rows={5} defaultValue={product?.description} />
         </label>
 
         <label className="field field--wide">
           <span>Provenance</span>
-          <textarea
-            name="provenance"
-            rows={3}
-            defaultValue={product?.provenance}
-          />
+          <textarea name="provenance" rows={3} defaultValue={product?.provenance} />
         </label>
 
         <label className="field field--wide">
@@ -117,33 +106,23 @@ export default function ProductForm({
             name="specs"
             rows={7}
             defaultValue={product?.specs}
-            placeholder={"Origin: Heriz district, north-west Iran\nDate: circa 1910\nSize: 3.62 × 2.71 m\nMaterials: Wool on cotton\nCondition: Very good"}
+            placeholder={
+              "Origin: Heriz district, north-west Iran\nDate: circa 1910\nSize: 3.62 × 2.71 m\nMaterials: Wool on cotton\nCondition: Very good"
+            }
           />
         </label>
 
         <div className="field--wide" style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
           <label className="checkline">
-            <input
-              type="checkbox"
-              name="priceFrom"
-              defaultChecked={product?.priceFrom}
-            />
+            <input type="checkbox" name="priceFrom" defaultChecked={product?.priceFrom} />
             Show price as “from £…”
           </label>
           <label className="checkline">
-            <input
-              type="checkbox"
-              name="featured"
-              defaultChecked={product?.featured}
-            />
+            <input type="checkbox" name="featured" defaultChecked={product?.featured} />
             Feature on the homepage
           </label>
           <label className="checkline">
-            <input
-              type="checkbox"
-              name="reserved"
-              defaultChecked={product?.reserved}
-            />
+            <input type="checkbox" name="reserved" defaultChecked={product?.reserved} />
             Mark as reserved
           </label>
         </div>

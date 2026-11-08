@@ -49,14 +49,8 @@ export default async function HousePage() {
         </h1>
       </section>
 
-      <section
-        className="wrap"
-        style={{ paddingTop: 40, paddingBottom: 0 }}
-      >
-        <ImageSlot
-          caption="Wide — the showroom, carpets stacked and rolled"
-          ratio="21/9"
-        />
+      <section className="wrap" style={{ paddingTop: 40, paddingBottom: 0 }}>
+        <ImageSlot caption="Wide — the showroom, carpets stacked and rolled" ratio="21/9" />
       </section>
 
       <section
@@ -77,9 +71,8 @@ export default async function HousePage() {
             textWrap: "pretty",
           }}
         >
-          Shahkar means masterpiece. It was my grandfather&rsquo;s word for the
-          one carpet in a hundred he would not sell, and we have kept it as a
-          standard rather than a slogan.
+          Shahkar means masterpiece. It was my grandfather&rsquo;s word for the one carpet in a hundred he
+          would not sell, and we have kept it as a standard rather than a slogan.
         </div>
         <div
           style={{
@@ -93,29 +86,25 @@ export default async function HousePage() {
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <p style={{ margin: 0, textWrap: "pretty" }}>
-              The business began in Tehran in the 1940s, buying from village
-              dealers who walked their stock in from Arak and Sarouk. In 1974 my
-              father brought it to England with eleven carpets and no customers.
-              He found them slowly, one drawing room at a time.
+              The business began in Tehran in the 1940s, buying from village dealers who walked their stock in
+              from Arak and Sarouk. In 1974 my father brought it to England with eleven carpets and no
+              customers. He found them slowly, one drawing room at a time.
             </p>
             <p style={{ margin: 0, textWrap: "pretty" }}>
-              We still buy the same way: in person, with a torch and a
-              magnifying glass, turning the carpet over to read the back where
-              the honest information is. No agents, no container lots, nothing
+              We still buy the same way: in person, with a torch and a magnifying glass, turning the carpet
+              over to read the back where the honest information is. No agents, no container lots, nothing
               bought from a photograph.
             </p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <p style={{ margin: 0, textWrap: "pretty" }}>
-              What I have changed is who we talk to. A great carpet has spent its
-              life being treated as an investment or an heirloom, and both of
-              those words make people nervous about walking on it. They were made
-              to be walked on. The wool was chosen for it.
+              What I have changed is who we talk to. A great carpet has spent its life being treated as an
+              investment or an heirloom, and both of those words make people nervous about walking on it. They
+              were made to be walked on. The wool was chosen for it.
             </p>
             <p style={{ margin: 0, textWrap: "pretty" }}>
-              So we photograph everything in real rooms, publish the price, and
-              send pieces out on trial. If it does not work in your hallway you
-              send it back and we have lost nothing but postage.
+              So we photograph everything in real rooms, publish the price, and send pieces out on trial. If
+              it does not work in your hallway you send it back and we have lost nothing but postage.
             </p>
           </div>
         </div>
@@ -141,21 +130,13 @@ export default async function HousePage() {
               key={s.n}
               style={{
                 padding: "64px 40px",
-                borderRight:
-                  i < stats.length - 1 ? "1px solid var(--line)" : undefined,
+                borderRight: i < stats.length - 1 ? "1px solid var(--line)" : undefined,
               }}
             >
-              <div
-                className="serif"
-                style={{ fontSize: 52, marginBottom: 12 }}
-              >
+              <div className="serif" style={{ fontSize: 52, marginBottom: 12 }}>
                 {s.n}
               </div>
-              <div
-                style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)" }}
-              >
-                {s.t}
-              </div>
+              <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)" }}>{s.t}</div>
             </div>
           ))}
         </div>
@@ -171,14 +152,8 @@ export default async function HousePage() {
           gap: 40,
         }}
       >
-        <ImageSlot
-          caption="Portrait — the owner in the showroom"
-          ratio="4/5"
-        />
-        <ImageSlot
-          caption="Detail — hand washing or the wool store"
-          ratio="4/5"
-        />
+        <ImageSlot caption="Portrait — the owner in the showroom" ratio="4/5" />
+        <ImageSlot caption="Detail — hand washing or the wool store" ratio="4/5" />
       </section>
     </>
   );

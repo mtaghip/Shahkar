@@ -5,16 +5,12 @@ import { requestReturn, type ReturnState } from "@/lib/actions/returns";
 
 export default function ReturnForm({ orderId }: { orderId: string }) {
   const action = requestReturn.bind(null, orderId);
-  const [state, formAction, pending] = useActionState<ReturnState, FormData>(
-    action,
-    {}
-  );
+  const [state, formAction, pending] = useActionState<ReturnState, FormData>(action, {});
 
   if (state.ok) {
     return (
       <p className="form-ok">
-        Return requested. We&rsquo;ll email you a prepaid label and collection
-        details shortly.
+        Return requested. We&rsquo;ll email you a prepaid label and collection details shortly.
       </p>
     );
   }
@@ -30,7 +26,12 @@ export default function ReturnForm({ orderId }: { orderId: string }) {
           {state.error}
         </p>
       ) : null}
-      <button type="submit" className="btn btn--outline btn--sm" disabled={pending} style={{ alignSelf: "flex-start" }}>
+      <button
+        type="submit"
+        className="btn btn--outline btn--sm"
+        disabled={pending}
+        style={{ alignSelf: "flex-start" }}
+      >
         {pending ? "Requesting…" : "Request a return"}
       </button>
     </form>

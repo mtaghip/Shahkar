@@ -45,7 +45,16 @@ export async function exportPersonalData(rawEmail: string) {
     prisma.enquiry.findMany({
       where: { email },
       orderBy: { createdAt: "asc" },
-      select: { name: true, email: true, phone: true, roomSize: true, budget: true, message: true, product: true, createdAt: true },
+      select: {
+        name: true,
+        email: true,
+        phone: true,
+        roomSize: true,
+        budget: true,
+        message: true,
+        product: true,
+        createdAt: true,
+      },
     }),
     prisma.newsletterSubscriber.findUnique({
       where: { email },

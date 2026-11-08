@@ -12,8 +12,10 @@ export const COMPANY = {
   registeredOffice: env("NEXT_PUBLIC_COMPANY_ADDRESS"),
   email: env("NEXT_PUBLIC_CONTACT_EMAIL") || "hello@shahkarcarpets.co.uk",
   phone: env("NEXT_PUBLIC_CONTACT_PHONE") || "01451 830 114",
-  showroom: (env("NEXT_PUBLIC_SHOWROOM_ADDRESS") ||
-    "The Wool Barn, Sheep Street|Stow-on-the-Wold|Gloucestershire GL54 1AA").split("|"),
+  showroom: (
+    env("NEXT_PUBLIC_SHOWROOM_ADDRESS") ||
+    "The Wool Barn, Sheep Street|Stow-on-the-Wold|Gloucestershire GL54 1AA"
+  ).split("|"),
   instagram: env("NEXT_PUBLIC_INSTAGRAM_URL"),
 } as const;
 

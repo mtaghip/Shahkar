@@ -45,15 +45,11 @@ function makeReference(): string {
 async function origin(): Promise<string> {
   const h = await headers();
   const host = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
-  const proto =
-    h.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+  const proto = h.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
-export async function placeOrder(
-  _prev: CheckoutState,
-  formData: FormData
-): Promise<CheckoutState> {
+export async function placeOrder(_prev: CheckoutState, formData: FormData): Promise<CheckoutState> {
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "")
     .trim()
@@ -74,8 +70,7 @@ export async function placeOrder(
   }
   if (lines.some((l) => l.product.reserved || l.product.stock < l.qty))
     return {
-      error:
-        "An item is no longer available in that quantity. Please update your bag.",
+      error: "An item is no longer available in that quantity. Please update your bag.",
     };
 
   // Discount codes are re-validated here; the client preview is only a hint.

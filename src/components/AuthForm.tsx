@@ -15,10 +15,7 @@ export default function AuthForm({
   action: Action;
   next?: string;
 }) {
-  const [state, formAction, pending] = useActionState<AuthState, FormData>(
-    action,
-    {}
-  );
+  const [state, formAction, pending] = useActionState<AuthState, FormData>(action, {});
   const isLogin = mode === "login";
 
   return (
@@ -54,20 +51,13 @@ export default function AuthForm({
       ) : null}
 
       <button type="submit" className="btn btn--solid btn--block" disabled={pending}>
-        {pending
-          ? isLogin
-            ? "Signing in…"
-            : "Creating account…"
-          : isLogin
-            ? "Sign in"
-            : "Create account"}
+        {pending ? (isLogin ? "Signing in…" : "Creating account…") : isLogin ? "Sign in" : "Create account"}
       </button>
 
       <p className="authform__alt">
         {isLogin ? (
           <>
-            New here?{" "}
-            <Link href="/account/register">Create an account</Link>
+            New here? <Link href="/account/register">Create an account</Link>
           </>
         ) : (
           <>

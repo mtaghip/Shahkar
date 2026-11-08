@@ -16,11 +16,7 @@ function summary(text: string, max = 158): string {
   return clean.length > max ? clean.slice(0, max - 1).trimEnd() + "…" : clean;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getBySlug(slug);
   if (!product) return { title: "Not found — Shahkar Carpets", robots: { index: false } };
@@ -41,11 +37,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getBySlug(slug);
   if (!product) notFound();
@@ -100,8 +92,7 @@ export default async function ProductPage({
         <Link href="/collection" style={{ color: "var(--muted)" }}>
           Collection
         </Link>{" "}
-        &nbsp;/&nbsp;{" "}
-        <span style={{ color: "var(--ink)" }}>{product.name}</span>
+        &nbsp;/&nbsp; <span style={{ color: "var(--ink)" }}>{product.name}</span>
       </div>
 
       <section
@@ -144,9 +135,7 @@ export default async function ProductPage({
           >
             {product.name}
           </h1>
-          <div style={{ fontSize: 15, color: "var(--muted)", marginBottom: 30 }}>
-            {product.meta}
-          </div>
+          <div style={{ fontSize: 15, color: "var(--muted)", marginBottom: 30 }}>{product.meta}</div>
           <div className="serif" style={{ fontSize: 30, marginBottom: 8 }}>
             {formatPrice(product.pricePence, product.priceFrom)}
           </div>
@@ -181,41 +170,37 @@ export default async function ProductPage({
           </div>
 
           {specs.length > 0 && (
-          <div style={{ borderTop: "1px solid var(--line)" }}>
-            {specs.map((s) => (
-              <div
-                key={s.k}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 20,
-                  padding: "15px 0",
-                  borderBottom: "1px solid var(--line-soft)",
-                  fontSize: 13,
-                }}
-              >
-                <span
+            <div style={{ borderTop: "1px solid var(--line)" }}>
+              {specs.map((s) => (
+                <div
+                  key={s.k}
                   style={{
-                    color: "var(--muted)",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    fontSize: 11,
-                    paddingTop: 2,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 20,
+                    padding: "15px 0",
+                    borderBottom: "1px solid var(--line-soft)",
+                    fontSize: 13,
                   }}
                 >
-                  {s.k}
-                </span>
-                <span style={{ textAlign: "right", maxWidth: "58%" }}>
-                  {s.v}
-                </span>
-              </div>
-            ))}
-          </div>
+                  <span
+                    style={{
+                      color: "var(--muted)",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      fontSize: 11,
+                      paddingTop: 2,
+                    }}
+                  >
+                    {s.k}
+                  </span>
+                  <span style={{ textAlign: "right", maxWidth: "58%" }}>{s.v}</span>
+                </div>
+              ))}
+            </div>
           )}
 
-          <div
-            style={{ marginTop: 36, padding: 26, background: "var(--card-2)" }}
-          >
+          <div style={{ marginTop: 36, padding: 26, background: "var(--card-2)" }}>
             <div
               style={{
                 fontSize: 11,

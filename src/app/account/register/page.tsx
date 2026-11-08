@@ -20,10 +20,7 @@ export default async function RegisterPage() {
       <div className="eyebrow" style={{ marginBottom: 20 }}>
         Account
       </div>
-      <h1
-        className="serif"
-        style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}
-      >
+      <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}>
         Create an account
       </h1>
       <p
@@ -34,8 +31,7 @@ export default async function RegisterPage() {
           margin: "0 0 36px",
         }}
       >
-        Keep your order history and home trials in one place. It takes a
-        moment.
+        Keep your order history and home trials in one place. It takes a moment.
       </p>
       <AuthForm mode="register" action={registerAction} />
     </section>

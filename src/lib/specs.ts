@@ -16,7 +16,10 @@ export function parseSpecs(text: string | null | undefined): Spec[] {
     const i = line.indexOf(":");
     if (i <= 0) continue;
     const k = line.slice(0, i).trim().slice(0, 60);
-    const v = line.slice(i + 1).trim().slice(0, 200);
+    const v = line
+      .slice(i + 1)
+      .trim()
+      .slice(0, 200);
     if (k && v) specs.push({ k, v });
     if (specs.length >= MAX_SPEC_LINES) break;
   }

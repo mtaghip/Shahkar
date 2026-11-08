@@ -3,12 +3,7 @@
 import { createHash, randomBytes } from "crypto";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import {
-  createSession,
-  destroySession,
-  hashPassword,
-  verifyPassword,
-} from "@/lib/auth";
+import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
 import { isRateLimited, clientIp } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { sendMail } from "@/lib/mailer";
@@ -35,14 +30,10 @@ function authDisabled(): boolean {
 
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
 
-export async function loginAction(
-  _prev: AuthState,
-  formData: FormData
-): Promise<AuthState> {
+export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   if (authDisabled())
     return {
-      error:
-        "Sign-in is not configured. The store owner must set AUTH_SECRET in Vercel and redeploy.",
+      error: "Sign-in is not configured. The store owner must set AUTH_SECRET in Vercel and redeploy.",
     };
   const email = String(formData.get("email") || "")
     .trim()
@@ -70,12 +61,11 @@ export async function loginAction(
   redirect(next ?? (user.role === "admin" ? "/admin" : "/account"));
 }
 
-export async function registerAction(
-  _prev: AuthState,
-  formData: FormData
-): Promise<AuthState> {
+export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   if (authDisabled()) return { error: "Account registration is temporarily unavailable." };
-  const name = String(formData.get("name") || "").trim().slice(0, 150);
+  const name = String(formData.get("name") || "")
+    .trim()
+    .slice(0, 150);
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase()
@@ -124,10 +114,7 @@ export async function logoutAction(): Promise<void> {
  * Email a one-time reset link. The response is identical whether or not the
  * account exists, so the form cannot be used to discover registered emails.
  */
-export async function requestPasswordReset(
-  _prev: AuthState,
-  formData: FormData
-): Promise<AuthState> {
+export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase()
@@ -174,11 +161,7 @@ Shahkar Carpets`
 }
 
 /** Complete a reset: set the new password, burn the token, sign out everywhere. */
-export async function resetPassword(
-  token: string,
-  _prev: AuthState,
-  formData: FormData
-): Promise<AuthState> {
+export async function resetPassword(token: string, _prev: AuthState, formData: FormData): Promise<AuthState> {
   const password = String(formData.get("password") || "");
   if (password.length < 8 || password.length > 200) {
     return { error: "Please use a password of 8 to 200 characters." };

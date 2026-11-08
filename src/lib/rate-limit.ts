@@ -7,11 +7,7 @@ import { prisma } from "./prisma";
  * serverless instances without extra infrastructure. Each call records one
  * attempt against every key and reports whether any key is now over its limit.
  */
-export async function isRateLimited(
-  keys: string[],
-  limit: number,
-  windowSeconds: number
-): Promise<boolean> {
+export async function isRateLimited(keys: string[], limit: number, windowSeconds: number): Promise<boolean> {
   const now = new Date();
   const resetAt = new Date(now.getTime() + windowSeconds * 1000);
   let limited = false;
@@ -37,9 +33,5 @@ export async function isRateLimited(
 /** Best-effort client IP (Vercel sets x-forwarded-for). */
 export async function clientIp(): Promise<string> {
   const h = await headers();
-  return (
-    (h.get("x-forwarded-for") || "").split(",")[0].trim() ||
-    h.get("x-real-ip") ||
-    "unknown"
-  );
+  return (h.get("x-forwarded-for") || "").split(",")[0].trim() || h.get("x-real-ip") || "unknown";
 }

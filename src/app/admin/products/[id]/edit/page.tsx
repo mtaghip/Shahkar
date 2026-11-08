@@ -6,11 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function EditProductPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
   const product = await getById(id);
@@ -23,11 +19,7 @@ export default async function EditProductPage({
       <div className="admin-h">
         <h2>Edit — {product.name}</h2>
       </div>
-      <ProductForm
-        action={action}
-        product={product}
-        submitLabel="Save changes"
-      />
+      <ProductForm action={action} product={product} submitLabel="Save changes" />
     </>
   );
 }

@@ -18,7 +18,9 @@ export async function requestReturn(
   _prev: ReturnState,
   formData: FormData
 ): Promise<ReturnState> {
-  const reason = String(formData.get("reason") || "").trim().slice(0, 2000);
+  const reason = String(formData.get("reason") || "")
+    .trim()
+    .slice(0, 2000);
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },

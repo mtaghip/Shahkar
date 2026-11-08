@@ -13,7 +13,9 @@ export interface FormState {
 
 const TOO_MANY = "You've sent a few of these already — please try again later.";
 const field = (f: FormData, name: string, max: number) =>
-  String(f.get(name) || "").trim().slice(0, max);
+  String(f.get(name) || "")
+    .trim()
+    .slice(0, max);
 
 /** Contact-page enquiry: stored for the admin inbox and emailed to the owner. */
 export async function submitEnquiry(_prev: FormState, form: FormData): Promise<FormState> {

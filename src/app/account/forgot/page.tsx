@@ -9,7 +9,9 @@ export default function ForgotPasswordPage() {
       className="wrap narrow"
       style={{ paddingTop: "clamp(56px,8vw,110px)", paddingBottom: "clamp(56px,8vw,110px)" }}
     >
-      <div className="eyebrow" style={{ marginBottom: 20 }}>Account</div>
+      <div className="eyebrow" style={{ marginBottom: 20 }}>
+        Account
+      </div>
       <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}>
         Forgotten your password?
       </h1>

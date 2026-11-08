@@ -9,8 +9,7 @@ export default function NewsletterForm() {
   if (state.ok) {
     return (
       <p className="form-ok" role="status" style={{ maxWidth: 340 }}>
-        Thank you — you&rsquo;re on the list. We&rsquo;ll write before the next
-        Thursday listing.
+        Thank you — you&rsquo;re on the list. We&rsquo;ll write before the next Thursday listing.
       </p>
     );
   }
@@ -18,8 +17,17 @@ export default function NewsletterForm() {
   return (
     <form className="newsletter" action={formAction} style={{ flexWrap: "wrap" }}>
       <input type="email" name="email" required placeholder="Email address" aria-label="Email address" />
-      <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1 }} />
-      <button type="submit" disabled={pending}>{pending ? "…" : "Join"}</button>
+      <input
+        type="text"
+        name="company"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-10000px", width: 1, height: 1 }}
+      />
+      <button type="submit" disabled={pending}>
+        {pending ? "…" : "Join"}
+      </button>
       {state.error ? (
         <p className="authform__error" role="alert" style={{ flexBasis: "100%", marginTop: 8 }}>
           {state.error}

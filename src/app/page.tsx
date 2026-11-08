@@ -15,8 +15,7 @@ const homeJournal = [
   {
     cat: "Living with it · 5 min",
     ph: "Journal image — carpet under a dining table",
-    title:
-      "Put the good carpet in the kitchen. An argument for use over reverence",
+    title: "Put the good carpet in the kitchen. An argument for use over reverence",
   },
 ];
 
@@ -70,10 +69,9 @@ export default async function HomePage() {
               textWrap: "pretty",
             }}
           >
-            Antique pieces recovered from the great weaving towns of Persia and
-            Anatolia, alongside new work we commission from the families still
-            knotting by hand. Each one photographed, measured and priced in
-            full.
+            Antique pieces recovered from the great weaving towns of Persia and Anatolia, alongside new work
+            we commission from the families still knotting by hand. Each one photographed, measured and priced
+            in full.
           </p>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <Link href="/collection" className="btn btn--solid">
@@ -127,10 +125,7 @@ export default async function HomePage() {
       </section>
 
       {/* ============ RECENTLY ACQUIRED ============ */}
-      <section
-        className="wrap"
-        style={{ paddingTop: "clamp(56px,7vw,92px)", paddingBottom: 40 }}
-      >
+      <section className="wrap" style={{ paddingTop: "clamp(56px,7vw,92px)", paddingBottom: 40 }}>
         <div className="section-head">
           <h2>Recently acquired</h2>
           <Link href="/collection" className="section-head__link">
@@ -140,8 +135,7 @@ export default async function HomePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
             gap: 40,
           }}
         >
@@ -184,8 +178,7 @@ export default async function HomePage() {
             paddingTop: "clamp(64px,8vw,110px)",
             paddingBottom: "clamp(64px,8vw,110px)",
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 380px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))",
             gap: "clamp(40px,6vw,88px)",
             alignItems: "center",
           }}
@@ -226,10 +219,9 @@ export default async function HomePage() {
                 textWrap: "pretty",
               }}
             >
-              My grandfather sold carpets out of a single room in Tehran. My
-              father moved the business to England in 1974. I grew up under the
-              pile, learning to read a knot count before I could read a balance
-              sheet.
+              My grandfather sold carpets out of a single room in Tehran. My father moved the business to
+              England in 1974. I grew up under the pile, learning to read a knot count before I could read a
+              balance sheet.
             </p>
             <p
               style={{
@@ -241,9 +233,8 @@ export default async function HomePage() {
                 textWrap: "pretty",
               }}
             >
-              What has changed with me is the room it goes in. These are not
-              museum objects to be roped off. They belong in kitchens, under
-              dogs, in houses with children.
+              What has changed with me is the room it goes in. These are not museum objects to be roped off.
+              They belong in kitchens, under dogs, in houses with children.
             </p>
             <Link
               href="/house"
@@ -279,8 +270,7 @@ export default async function HomePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
             gap: 40,
           }}
         >
@@ -307,10 +297,7 @@ export default async function HomePage() {
                 >
                   {j.cat}
                 </div>
-                <div
-                  className="serif"
-                  style={{ fontSize: 26, lineHeight: 1.25, textWrap: "pretty" }}
-                >
+                <div className="serif" style={{ fontSize: 26, lineHeight: 1.25, textWrap: "pretty" }}>
                   {j.title}
                 </div>
               </div>
@@ -334,25 +321,18 @@ function CategoryTile({
   meta: string;
 }) {
   return (
-    <Link
-      href={href}
-      style={{ position: "relative", aspectRatio: "3/2", display: "block" }}
-    >
+    <Link href={href} style={{ position: "relative", aspectRatio: "3/2", display: "block" }}>
       <ImageSlot caption={caption} />
       <div
         style={{
           position: "absolute",
           inset: "auto 0 0 0",
           padding: "36px 34px",
-          background:
-            "linear-gradient(to top, rgba(23,19,15,0.86), rgba(23,19,15,0))",
+          background: "linear-gradient(to top, rgba(23,19,15,0.86), rgba(23,19,15,0))",
           pointerEvents: "none",
         }}
       >
-        <div
-          className="serif"
-          style={{ fontSize: 34, color: "var(--paper)", marginBottom: 6 }}
-        >
+        <div className="serif" style={{ fontSize: 34, color: "var(--paper)", marginBottom: 6 }}>
           {title}
         </div>
         <div

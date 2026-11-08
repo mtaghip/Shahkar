@@ -20,9 +20,19 @@ function readProductForm(formData: FormData) {
   const priceStr = String(formData.get("price") || "");
 
   return {
-    status: ["ACTIVE","DRAFT","ARCHIVED"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "DRAFT",
-    sku: String(formData.get("sku") || "").trim().slice(0,100),
-    imageIds: [...new Set(String(formData.get("imageIds") || "").split(",").filter(Boolean))],
+    status: ["ACTIVE", "DRAFT", "ARCHIVED"].includes(String(formData.get("status")))
+      ? String(formData.get("status"))
+      : "DRAFT",
+    sku: String(formData.get("sku") || "")
+      .trim()
+      .slice(0, 100),
+    imageIds: [
+      ...new Set(
+        String(formData.get("imageIds") || "")
+          .split(",")
+          .filter(Boolean)
+      ),
+    ],
     name,
     slug: slugInput ? slugify(slugInput) : slugify(name),
     tag: String(formData.get("tag") || "").trim(),
@@ -55,8 +65,19 @@ export async function createProductAction(
     return { error: `The slug "${data.slug}" is already in use — pick another.` };
   }
 
-  if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
-  if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
+  if (
+    data.imageIds.length > 6 ||
+    (await prisma.media.count({ where: { id: { in: data.imageIds } } })) !== data.imageIds.length
+  )
+    return { error: "Please upload valid product photos." };
+  if (
+    !Number.isSafeInteger(data.pricePence) ||
+    data.pricePence > 2147483647 ||
+    !Number.isSafeInteger(data.stock) ||
+    data.stock < 0 ||
+    data.stock > 100000
+  )
+    return { error: "Enter valid price and whole-number stock (0–100,000)." };
   const created = await prisma.product.create({ data });
   await audit(admin, "product.create", created.id, data.name);
   invalidateProducts();
@@ -85,8 +106,19 @@ export async function updateProductAction(
     return { error: `The slug "${data.slug}" is already in use — pick another.` };
   }
 
-  if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
-  if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
+  if (
+    data.imageIds.length > 6 ||
+    (await prisma.media.count({ where: { id: { in: data.imageIds } } })) !== data.imageIds.length
+  )
+    return { error: "Please upload valid product photos." };
+  if (
+    !Number.isSafeInteger(data.pricePence) ||
+    data.pricePence > 2147483647 ||
+    !Number.isSafeInteger(data.stock) ||
+    data.stock < 0 ||
+    data.stock > 100000
+  )
+    return { error: "Enter valid price and whole-number stock (0–100,000)." };
   await prisma.product.update({ where: { id }, data });
   await audit(admin, "product.update", id, `${data.name} · ${data.status}`);
   invalidateProducts();
@@ -186,9 +218,15 @@ export async function fulfilOrderAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
-  const trackingCarrier = String(formData.get("trackingCarrier") || "").trim().slice(0, 100);
-  const trackingNumber = String(formData.get("trackingNumber") || "").trim().slice(0, 100);
-  let trackingUrl = String(formData.get("trackingUrl") || "").trim().slice(0, 500);
+  const trackingCarrier = String(formData.get("trackingCarrier") || "")
+    .trim()
+    .slice(0, 100);
+  const trackingNumber = String(formData.get("trackingNumber") || "")
+    .trim()
+    .slice(0, 100);
+  let trackingUrl = String(formData.get("trackingUrl") || "")
+    .trim()
+    .slice(0, 500);
   if (trackingUrl && !/^https?:\/\//i.test(trackingUrl)) trackingUrl = "";
 
   const order = await prisma.order.update({
@@ -310,7 +348,15 @@ export async function createDiscountAction(
     return { error: `The code ${code} already exists.` };
 
   await prisma.discountCode.create({
-    data: { code, kind, value, minSubtotalPence, maxUses, startsAt: date("startsAt"), endsAt: date("endsAt") },
+    data: {
+      code,
+      kind,
+      value,
+      minSubtotalPence,
+      maxUses,
+      startsAt: date("startsAt"),
+      endsAt: date("endsAt"),
+    },
   });
   await audit(admin, "discount.create", code, kind === "PERCENT" ? `${value}%` : `£${value / 100}`);
   revalidatePath("/admin/discounts");

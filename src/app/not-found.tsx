@@ -32,8 +32,8 @@ export default function NotFound() {
           maxWidth: "46ch",
         }}
       >
-        The page you were after isn&rsquo;t here — it may have sold, or the link
-        may be old. The collection is the best place to start again.
+        The page you were after isn&rsquo;t here — it may have sold, or the link may be old. The collection is
+        the best place to start again.
       </p>
       <Link href="/collection" className="btn btn--solid">
         Browse the collection

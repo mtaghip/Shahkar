@@ -1,22 +1,15 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  requestPasswordReset,
-  resetPassword,
-  type AuthState,
-} from "@/lib/actions/auth";
+import { requestPasswordReset, resetPassword, type AuthState } from "@/lib/actions/auth";
 
 export function ForgotPasswordForm() {
-  const [state, formAction, pending] = useActionState<AuthState, FormData>(
-    requestPasswordReset,
-    {}
-  );
+  const [state, formAction, pending] = useActionState<AuthState, FormData>(requestPasswordReset, {});
   if (state.ok) {
     return (
       <p className="form-ok" role="status">
-        If an account exists for that address, we&rsquo;ve emailed a link to reset
-        your password. It works once and expires in one hour.
+        If an account exists for that address, we&rsquo;ve emailed a link to reset your password. It works
+        once and expires in one hour.
       </p>
     );
   }
@@ -47,13 +40,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form action={formAction} className="authform">
       <label className="field">
         <span>New password</span>
-        <input
-          type="password"
-          name="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-        />
+        <input type="password" name="password" required minLength={8} autoComplete="new-password" />
       </label>
       {state.error ? (
         <p className="authform__error" role="alert">

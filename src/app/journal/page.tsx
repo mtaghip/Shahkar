@@ -11,10 +11,7 @@ export const metadata = {
 export default function JournalPage() {
   return (
     <>
-      <section
-        className="wrap"
-        style={{ paddingTop: "clamp(56px,7vw,92px)", paddingBottom: 0 }}
-      >
+      <section className="wrap" style={{ paddingTop: "clamp(56px,7vw,92px)", paddingBottom: 0 }}>
         <div className="eyebrow" style={{ marginBottom: 24 }}>
           Journal
         </div>
@@ -38,8 +35,7 @@ export default function JournalPage() {
             textWrap: "pretty",
           }}
         >
-          Written by us, mostly for people who own one carpet and want to
-          understand it better.
+          Written by us, mostly for people who own one carpet and want to understand it better.
         </p>
       </section>
 
@@ -54,10 +50,7 @@ export default function JournalPage() {
         }}
       >
         {POSTS.map((a) => (
-          <article
-            key={a.title}
-            style={{ display: "flex", flexDirection: "column", gap: 18 }}
-          >
+          <article key={a.title} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <ImageSlot caption={a.ph} ratio="3/2" />
             <div>
               <div

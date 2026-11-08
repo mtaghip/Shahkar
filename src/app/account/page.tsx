@@ -47,10 +47,7 @@ export default async function AccountPage() {
           <div className="eyebrow" style={{ marginBottom: 16 }}>
             Account
           </div>
-          <h1
-            className="serif"
-            style={{ fontSize: "clamp(30px,4vw,46px)", margin: 0 }}
-          >
+          <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,46px)", margin: 0 }}>
             {user.name || user.email}
           </h1>
           <p style={{ color: "var(--muted)", margin: "10px 0 0", fontSize: 14 }}>
@@ -82,10 +79,7 @@ export default async function AccountPage() {
       {orders.length === 0 ? (
         <p style={{ color: "var(--muted-2)", fontSize: 15, lineHeight: 1.7 }}>
           You have no orders yet.{" "}
-          <Link
-            href="/collection"
-            style={{ color: "var(--madder)", borderBottom: "1px solid #c8a9a0" }}
-          >
+          <Link href="/collection" style={{ color: "var(--madder)", borderBottom: "1px solid #c8a9a0" }}>
             Browse the collection
           </Link>
           .
@@ -106,9 +100,7 @@ export default async function AccountPage() {
             <tbody>
               {orders.map((o) => (
                 <tr key={o.id}>
-                  <td style={{ fontFamily: "var(--font-mono, monospace)" }}>
-                    {o.reference}
-                  </td>
+                  <td style={{ fontFamily: "var(--font-mono, monospace)" }}>{o.reference}</td>
                   <td>{o.createdAt.toLocaleDateString("en-GB")}</td>
                   <td>{o.items.reduce((n, i) => n + i.qty, 0)}</td>
                   <td>{formatExact(o.totalPence)}</td>
@@ -140,7 +132,11 @@ export default async function AccountPage() {
         <a href={`mailto:${COMPANY.email}?subject=Delete%20my%20account`} style={{ color: "var(--madder)" }}>
           {COMPANY.email}
         </a>
-        . See our <Link href="/privacy" style={{ color: "var(--madder)" }}>privacy notice</Link>.
+        . See our{" "}
+        <Link href="/privacy" style={{ color: "var(--madder)" }}>
+          privacy notice
+        </Link>
+        .
       </p>
     </section>
   );

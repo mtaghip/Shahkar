@@ -41,7 +41,9 @@ const login = async (page, email, password) => {
 const addToBag = async (page, slug) => {
   await page.goto(`${B}/product/${slug}`);
   await page.click('button:has-text("Add to bag")');
-  await page.waitForFunction(() => /Bag \([1-9]/.test(document.querySelector(".header__util")?.textContent || ""));
+  await page.waitForFunction(() =>
+    /Bag \([1-9]/.test(document.querySelector(".header__util")?.textContent || "")
+  );
 };
 const fillCheckout = async (page, name, email) => {
   await page.goto(B + "/checkout");
@@ -64,14 +66,18 @@ try {
     ok("product has Product structured data", /"@type":"Product"/.test(z));
     ok("robots.txt blocks admin", /Disallow: \/admin/.test(await (await fetch(B + "/robots.txt")).text()));
     ok("sitemap lists products", /\/product\/heriz/.test(await (await fetch(B + "/sitemap.xml")).text()));
-    for (const p of ["/terms", "/privacy", "/cookies"]) ok(`${p} renders`, (await fetch(B + p)).status === 200);
+    for (const p of ["/terms", "/privacy", "/cookies"])
+      ok(`${p} renders`, (await fetch(B + p)).status === 200);
   }
 
   step("Admin & caching");
   const admin = await newPage();
   await login(admin, ADMIN_EMAIL, ADMIN_PASSWORD);
   ok("admin signs in", admin.url().endsWith("/admin"));
-  ok("unauthenticated admin is redirected", (await fetch(B + "/admin", { redirect: "manual" })).status >= 300);
+  ok(
+    "unauthenticated admin is redirected",
+    (await fetch(B + "/admin", { redirect: "manual" })).status >= 300
+  );
   await admin.goto(B + "/admin/discounts");
   await admin.fill("input[name=code]", "E2E10");
   await admin.fill("input[name=value]", "10");
@@ -85,22 +91,37 @@ try {
   await admin.fill("input[name=price]", "9123");
   await admin.click('button:has-text("Save changes")');
   await admin.waitForURL("**/admin/products?updated=1");
-  ok("price edit visible immediately despite caching", /£9,123/.test(await (await fetch(B + "/collection")).text()));
+  ok(
+    "price edit visible immediately despite caching",
+    /£9,123/.test(await (await fetch(B + "/collection")).text())
+  );
 
   // Photo upload → optimised storefront image → lightbox
   await admin.goto(B + "/admin/products");
   await admin.click('a:has-text("Ziegler Sultanabad")');
   await admin.waitForURL("**/edit");
   const photos = await Promise.all(
-    ["#8d3229", "#2a4d66"].map((c) => sharp({ create: { width: 1800, height: 1400, channels: 3, background: c } }).jpeg().toBuffer())
+    ["#8d3229", "#2a4d66"].map((c) =>
+      sharp({ create: { width: 1800, height: 1400, channels: 3, background: c } })
+        .jpeg()
+        .toBuffer()
+    )
   );
-  await admin.setInputFiles('input[type="file"]', photos.map((buffer, i) => ({ name: `p${i}.jpg`, mimeType: "image/jpeg", buffer })));
-  await admin.waitForFunction(() => document.querySelectorAll(".media-list figure").length === 2, null, { timeout: 30000 });
+  await admin.setInputFiles(
+    'input[type="file"]',
+    photos.map((buffer, i) => ({ name: `p${i}.jpg`, mimeType: "image/jpeg", buffer }))
+  );
+  await admin.waitForFunction(() => document.querySelectorAll(".media-list figure").length === 2, null, {
+    timeout: 30000,
+  });
   await admin.click('button:has-text("Save changes")');
   await admin.waitForURL("**/admin/products?updated=1");
   const shopper = await newPage();
   await shopper.goto(B + "/product/ziegler");
-  ok("uploaded photo served through the image optimiser", (await shopper.locator(".gallery-main img").getAttribute("src"))?.startsWith("/_next/image"));
+  ok(
+    "uploaded photo served through the image optimiser",
+    (await shopper.locator(".gallery-main img").getAttribute("src"))?.startsWith("/_next/image")
+  );
   await shopper.click(".gallery-main");
   await shopper.waitForSelector("dialog.lightbox[open]");
   await shopper.keyboard.press("ArrowRight");
@@ -132,13 +153,20 @@ try {
     await addToBag(p2, "bakhshaish");
     await fillCheckout(p1, "Racer One", "one@example.com");
     await fillCheckout(p2, "Racer Two", "two@example.com");
-    await Promise.all([p1.click('button:has-text("Place order")'), p2.click('button:has-text("Place order")')]);
+    await Promise.all([
+      p1.click('button:has-text("Place order")'),
+      p2.click('button:has-text("Place order")'),
+    ]);
     await Promise.all([p1.waitForTimeout(4000), p2.waitForTimeout(4000)]);
     const orders = await db.order.count({ where: { items: { some: { product: { slug: "bakhshaish" } } } } });
     ok("exactly one order wins", orders === 1, `${orders} orders`);
     const loser = [p1, p2].find((p) => !p.url().includes("/order/"));
     const msg = loser ? await loser.textContent("main") : "";
-    const path = /just been reserved/.test(msg) ? "atomic reservation" : /no longer available/.test(msg) ? "availability check" : "";
+    const path = /just been reserved/.test(msg)
+      ? "atomic reservation"
+      : /no longer available/.test(msg)
+        ? "availability check"
+        : "";
     ok("the other buyer is told it's gone", !!path, path);
   }
 
@@ -146,8 +174,17 @@ try {
   {
     const probe = await db.product.create({
       data: {
-        slug: "race-probe-" + Date.now(), name: "Race probe", tag: "", meta: "", pricePence: 100,
-        category: "antique", description: "", provenance: "", imageCaption: "", stock: 1, status: "ACTIVE",
+        slug: "race-probe-" + Date.now(),
+        name: "Race probe",
+        tag: "",
+        meta: "",
+        pricePence: 100,
+        category: "antique",
+        description: "",
+        provenance: "",
+        imageCaption: "",
+        stock: 1,
+        status: "ACTIVE",
       },
     });
     // The same conditional update placeOrder runs inside its transaction.
@@ -188,7 +225,10 @@ try {
   }
   const refunded = await db.order.findUnique({ where: { id: orderId } });
   ok("order refunded", refunded.status === "REFUNDED");
-  ok("stock restored", (await db.product.findUnique({ where: { slug: "meander" } })).stock === stockBefore + 1);
+  ok(
+    "stock restored",
+    (await db.product.findUnique({ where: { slug: "meander" } })).stock === stockBefore + 1
+  );
 
   step("Authentication hardening");
   {
@@ -206,7 +246,11 @@ try {
     const user = await db.user.findUnique({ where: { email } });
     const token = "e2e-" + Date.now();
     await db.passwordResetToken.create({
-      data: { userId: user.id, tokenHash: createHash("sha256").update(token).digest("hex"), expiresAt: new Date(Date.now() + 3600_000) },
+      data: {
+        userId: user.id,
+        tokenHash: createHash("sha256").update(token).digest("hex"),
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
     });
     const r = await newPage();
     await r.goto(`${B}/account/reset?token=${token}`);
@@ -219,7 +263,10 @@ try {
     await login(c, email, "second-password");
     ok("new password works", c.url().endsWith("/account"));
     const exp = await c.evaluate(async () => (await fetch("/api/account/export")).json());
-    ok("customer can export own data", exp.account?.email === email && !JSON.stringify(exp).includes("passwordHash"));
+    ok(
+      "customer can export own data",
+      exp.account?.email === email && !JSON.stringify(exp).includes("passwordHash")
+    );
   }
 
   step("Enquiries, newsletter, GDPR");
@@ -243,8 +290,14 @@ try {
     await admin.fill("input[name=confirm]", "ERASE");
     await admin.click('button:has-text("Erase personal data")');
     await admin.waitForURL("**?erased=1");
-    ok("erasure anonymises the customer", (await db.customer.findUnique({ where: { id: cust.id } })).name === "Erased customer");
-    ok("erasure removes enquiries", (await db.enquiry.count({ where: { email: "hannah@example.com" } })) === 0);
+    ok(
+      "erasure anonymises the customer",
+      (await db.customer.findUnique({ where: { id: cust.id } })).name === "Erased customer"
+    );
+    ok(
+      "erasure removes enquiries",
+      (await db.enquiry.count({ where: { email: "hannah@example.com" } })) === 0
+    );
   }
 } catch (e) {
   ok("suite ran without exceptions", false, e.message.split("\n")[0]);

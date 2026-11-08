@@ -18,7 +18,12 @@ export default async function AdminReturnsPage() {
   return (
     <>
       <div className="admin-heading">
-        <div><h1>Returns</h1><p>{open.length} open · {returns.length} total (14-day home trial)</p></div>
+        <div>
+          <h1>Returns</h1>
+          <p>
+            {open.length} open · {returns.length} total (14-day home trial)
+          </p>
+        </div>
       </div>
 
       {returns.length === 0 ? (
@@ -41,10 +46,19 @@ export default async function AdminReturnsPage() {
                 <tr key={r.id}>
                   <td>{r.createdAt.toLocaleDateString("en-GB")}</td>
                   <td>{r.order.reference}</td>
-                  <td>{r.order.name}<div style={{ fontSize: 12, color: "var(--muted)" }}>{r.order.email}</div></td>
+                  <td>
+                    {r.order.name}
+                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{r.order.email}</div>
+                  </td>
                   <td>{formatExact(r.order.totalPence)}</td>
-                  <td><span className="pill">{r.status.toLowerCase()}</span></td>
-                  <td><Link href={"/admin/orders/" + r.orderId} className="btn btn--ghost btn--sm">Manage</Link></td>
+                  <td>
+                    <span className="pill">{r.status.toLowerCase()}</span>
+                  </td>
+                  <td>
+                    <Link href={"/admin/orders/" + r.orderId} className="btn btn--ghost btn--sm">
+                      Manage
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

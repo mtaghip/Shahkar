@@ -7,11 +7,7 @@ export const dynamic = "force-dynamic";
 
 const NEXT: Record<string, string[]> = { NEW: ["REPLIED", "CLOSED"], REPLIED: ["CLOSED"], CLOSED: ["NEW"] };
 
-export default async function AdminInboxPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ show?: string }>;
-}) {
+export default async function AdminInboxPage({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   await requireAdmin();
   const { show } = await searchParams;
   const all = show === "all";
@@ -58,7 +54,9 @@ export default async function AdminInboxPage({
                   <a href={`mailto:${e.email}`}>{e.email}</a> · {e.createdAt.toLocaleString("en-GB")}
                 </small>
               </div>
-              <span className={"badge " + (e.status === "NEW" ? "warn" : e.status === "REPLIED" ? "good" : "")}>
+              <span
+                className={"badge " + (e.status === "NEW" ? "warn" : e.status === "REPLIED" ? "good" : "")}
+              >
                 {e.status.toLowerCase()}
               </span>
             </div>
@@ -72,7 +70,10 @@ export default async function AdminInboxPage({
             </p>
             {e.message ? <p style={{ whiteSpace: "pre-wrap" }}>{e.message}</p> : null}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-              <a className="btn btn--solid btn--sm" href={`mailto:${e.email}?subject=${encodeURIComponent("Your enquiry to Shahkar Carpets")}`}>
+              <a
+                className="btn btn--solid btn--sm"
+                href={`mailto:${e.email}?subject=${encodeURIComponent("Your enquiry to Shahkar Carpets")}`}
+              >
                 Reply by email
               </a>
               {(NEXT[e.status] || []).map((s) => (

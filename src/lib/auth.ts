@@ -1,12 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  randomBytes,
-  scryptSync,
-  timingSafeEqual,
-  createHmac,
-} from "crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "crypto";
 import { prisma } from "./prisma";
 import type { User } from "@prisma/client";
 
@@ -14,7 +9,8 @@ const COOKIE = "shahkar_session";
 const MAX_AGE_S = 60 * 60 * 24 * 30; // 30 days
 
 function secret(): string {
-  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) throw new Error("AUTH_SECRET is required in production.");
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET)
+    throw new Error("AUTH_SECRET is required in production.");
   return process.env.AUTH_SECRET || "insecure-dev-secret-change-me";
 }
 
@@ -42,9 +38,7 @@ function sign(payload: string): string {
 
 function makeToken(userId: string, version: number): string {
   const exp = Date.now() + MAX_AGE_S * 1000;
-  const payload = Buffer.from(JSON.stringify({ uid: userId, exp, v: version })).toString(
-    "base64url"
-  );
+  const payload = Buffer.from(JSON.stringify({ uid: userId, exp, v: version })).toString("base64url");
   return `${payload}.${sign(payload)}`;
 }
 
@@ -57,9 +51,7 @@ function readToken(token: string): { uid: string; v: number } | null {
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   try {
-    const { uid, exp, v } = JSON.parse(
-      Buffer.from(payload, "base64url").toString()
-    );
+    const { uid, exp, v } = JSON.parse(Buffer.from(payload, "base64url").toString());
     if (typeof uid !== "string" || typeof exp !== "number") return null;
     if (Date.now() > exp) return null;
     return { uid, v: typeof v === "number" ? v : 0 };
@@ -70,10 +62,7 @@ function readToken(token: string): { uid: string; v: number } | null {
 
 /* ---------- session cookie helpers ---------- */
 
-export async function createSession(
-  userId: string,
-  sessionVersion = 0
-): Promise<void> {
+export async function createSession(userId: string, sessionVersion = 0): Promise<void> {
   const store = await cookies();
   store.set(COOKIE, makeToken(userId, sessionVersion), {
     httpOnly: true,

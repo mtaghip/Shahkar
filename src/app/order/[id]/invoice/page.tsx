@@ -41,16 +41,25 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       </div>
       <header className="invoice__head">
         <div>
-          <div className="serif" style={{ fontSize: 30, letterSpacing: "0.18em" }}>SHAHKAR</div>
+          <div className="serif" style={{ fontSize: 30, letterSpacing: "0.18em" }}>
+            SHAHKAR
+          </div>
           <p className="invoice__muted">
             {legalLine()}
-            {COMPANY.registeredOffice ? <><br />{COMPANY.registeredOffice}</> : null}
+            {COMPANY.registeredOffice ? (
+              <>
+                <br />
+                {COMPANY.registeredOffice}
+              </>
+            ) : null}
             <br />
             {COMPANY.email} · {COMPANY.phone}
           </p>
         </div>
         <div style={{ textAlign: "right" }}>
-          <h1 className="serif" style={{ fontSize: 30, margin: "0 0 8px" }}>{vat ? "VAT invoice" : "Invoice"}</h1>
+          <h1 className="serif" style={{ fontSize: 30, margin: "0 0 8px" }}>
+            {vat ? "VAT invoice" : "Invoice"}
+          </h1>
           <p className="invoice__muted">
             No. {order.reference}
             <br />
@@ -85,7 +94,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               <td>
                 {it.name}
                 {margin && it.product.category === "antique" ? (
-                  <div className="invoice__muted" style={{ fontSize: 12 }}>Second-hand margin scheme</div>
+                  <div className="invoice__muted" style={{ fontSize: 12 }}>
+                    Second-hand margin scheme
+                  </div>
                 ) : null}
               </td>
               <td style={{ textAlign: "right" }}>{it.qty}</td>
@@ -99,7 +110,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       <div className="invoice__totals">
         <Line label="Subtotal" value={formatExact(totals.subtotalPence)} />
         {order.discountPence > 0 ? (
-          <Line label={`Discount${order.discountCode ? ` (${order.discountCode})` : ""}`} value={`−${formatExact(order.discountPence)}`} />
+          <Line
+            label={`Discount${order.discountCode ? ` (${order.discountCode})` : ""}`}
+            value={`−${formatExact(order.discountPence)}`}
+          />
         ) : null}
         <Line
           label={`Delivery — ${shippingRate(order.shippingMethod).label}`}

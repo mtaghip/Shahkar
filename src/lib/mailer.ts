@@ -26,12 +26,7 @@ export interface MailOrder {
 
 function itemLines(order: MailOrder): string {
   return order.items
-    .map(
-      (i) =>
-        `  · ${i.name}${i.qty > 1 ? ` × ${i.qty}` : ""} — ${formatPrice(
-          i.pricePence * i.qty
-        )}`
-    )
+    .map((i) => `  · ${i.name}${i.qty > 1 ? ` × ${i.qty}` : ""} — ${formatPrice(i.pricePence * i.qty)}`)
     .join("\n");
 }
 
@@ -151,15 +146,12 @@ export async function sendMail(
         to: [to],
         subject,
         text,
-        ...(process.env.EMAIL_REPLY_TO
-          ? { reply_to: process.env.EMAIL_REPLY_TO }
-          : {}),
+        ...(process.env.EMAIL_REPLY_TO ? { reply_to: process.env.EMAIL_REPLY_TO } : {}),
       }),
       signal: AbortSignal.timeout(15000),
     });
     const result = await response.json().catch(() => ({}));
-    if (response.ok && typeof result.id === "string")
-      return { ok: true, providerId: result.id };
+    if (response.ok && typeof result.id === "string") return { ok: true, providerId: result.id };
     return { ok: false, error: `Resend responded ${response.status}` };
   } catch {
     return { ok: false, error: "Resend request failed" };

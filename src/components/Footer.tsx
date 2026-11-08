@@ -10,8 +10,7 @@ export default function Footer() {
           <div className="footer__brand">SHAHKAR</div>
           <div className="footer__brandsub">Carpets · est. 1974</div>
           <p className="footer__note">
-            New pieces are listed most Thursdays. Join the list and see them
-            before they reach the site.
+            New pieces are listed most Thursdays. Join the list and see them before they reach the site.
           </p>
           <NewsletterForm />
           <p style={{ fontSize: 12, marginTop: 10, color: "var(--on-ink-dim)" }}>
@@ -26,9 +25,7 @@ export default function Footer() {
         <div className="footer__col">
           <div className="footer__coltitle">Shop</div>
           <Link href="/collection?filter=antique">Antique &amp; collectable</Link>
-          <Link href="/collection?filter=contemporary">
-            Contemporary handmade
-          </Link>
+          <Link href="/collection?filter=contemporary">Contemporary handmade</Link>
           <Link href="/collection">Runners</Link>
           <Link href="/collection">Under £5,000</Link>
         </div>
@@ -51,7 +48,9 @@ export default function Footer() {
       </div>
 
       <div className="footer__legal">
-        <div>&copy; {new Date().getFullYear()} {legalLine()}</div>
+        <div>
+          &copy; {new Date().getFullYear()} {legalLine()}
+        </div>
         <div className="footer__links">
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>

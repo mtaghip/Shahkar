@@ -13,11 +13,7 @@ export const metadata = { title: "Your order — Shahkar Carpets" };
 
 const OPEN_RETURN = ["REQUESTED", "APPROVED", "RECEIVED"];
 
-export default async function OrderPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
@@ -76,7 +72,13 @@ export default async function OrderPage({
           {order.items.map((it) => (
             <div
               key={it.id}
-              style={{ display: "flex", justifyContent: "space-between", gap: 16, fontSize: 15, padding: "8px 0" }}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 16,
+                fontSize: 15,
+                padding: "8px 0",
+              }}
             >
               <span>
                 {it.name}
@@ -116,7 +118,16 @@ export default async function OrderPage({
           ) : null}
         </div>
 
-        <div style={{ padding: "20px 24px", fontSize: 14, lineHeight: 1.7, color: "var(--muted-2)", display: "grid", gap: 18 }}>
+        <div
+          style={{
+            padding: "20px 24px",
+            fontSize: 14,
+            lineHeight: 1.7,
+            color: "var(--muted-2)",
+            display: "grid",
+            gap: 18,
+          }}
+        >
           <div>
             <Label>Delivery to</Label>
             {order.address}
@@ -131,7 +142,12 @@ export default async function OrderPage({
                     <>
                       {" "}
                       ·{" "}
-                      <a href={order.trackingUrl} target="_blank" rel="noreferrer" style={{ color: "var(--madder)" }}>
+                      <a
+                        href={order.trackingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "var(--madder)" }}
+                      >
                         Track
                       </a>
                     </>
@@ -153,15 +169,14 @@ export default async function OrderPage({
           </div>
           {openReturn ? (
             <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted-2)", margin: 0 }}>
-              Return status:{" "}
-              <span className="pill pill--pending">{openReturn.status.toLowerCase()}</span>
-              . We&rsquo;ll be in touch with the next step.
+              Return status: <span className="pill pill--pending">{openReturn.status.toLowerCase()}</span>.
+              We&rsquo;ll be in touch with the next step.
             </p>
           ) : (
             <>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted-2)", margin: "0 0 14px" }}>
-                Not the right piece for the room? You can return it within 14 days
-                of delivery — no charge but the postage.
+                Not the right piece for the room? You can return it within 14 days of delivery — no charge but
+                the postage.
               </p>
               <ReturnForm orderId={order.id} />
             </>

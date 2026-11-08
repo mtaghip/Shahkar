@@ -3,12 +3,7 @@ import type Stripe from "stripe";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { invalidateProducts } from "@/lib/products";
-import {
-  sendMail,
-  orderConfirmationEmail,
-  orderRefundedEmail,
-  type MailOrder,
-} from "@/lib/mailer";
+import { sendMail, orderConfirmationEmail, orderRefundedEmail, type MailOrder } from "@/lib/mailer";
 
 type Tx = Prisma.TransactionClient;
 
@@ -66,8 +61,7 @@ export async function markOrderPaid(
         status: "PAID",
         paidAt: new Date(),
         paymentProvider: opts.provider,
-        stripePaymentIntentId:
-          opts.paymentIntentId ?? existing.stripePaymentIntentId,
+        stripePaymentIntentId: opts.paymentIntentId ?? existing.stripePaymentIntentId,
       },
       include: { items: true },
     });

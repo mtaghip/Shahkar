@@ -33,9 +33,7 @@ export function orderBreakdown(
   const discountShare =
     subtotalPence > 0 ? Math.round((order.discountPence * antiqueGross) / subtotalPence) : 0;
   const marginSchemePence = opts.marginSchemeAntiques ? Math.max(0, antiqueGross - discountShare) : 0;
-  const vatPence = opts.vatRegistered
-    ? vatIncluded(order.totalPence - marginSchemePence, VAT_RATE)
-    : null;
+  const vatPence = opts.vatRegistered ? vatIncluded(order.totalPence - marginSchemePence, VAT_RATE) : null;
   return {
     subtotalPence,
     discountPence: order.discountPence,

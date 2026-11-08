@@ -33,7 +33,9 @@ function parse(raw: string | undefined): CartEntry[] {
           e &&
           typeof e.productId === "string" &&
           typeof e.qty === "number" &&
-          Number.isSafeInteger(e.qty) && e.qty > 0 && e.qty <= 100
+          Number.isSafeInteger(e.qty) &&
+          e.qty > 0 &&
+          e.qty <= 100
       )
       .map((e) => ({ productId: e.productId, qty: Math.floor(e.qty) }));
   } catch {
@@ -72,7 +74,7 @@ export async function getCartDetail(): Promise<CartDetail> {
   if (entries.length === 0) return { lines: [], totalPence: 0, count: 0 };
 
   const products = await prisma.product.findMany({
-    where: { id: { in: entries.map((e) => e.productId) }, status:"ACTIVE" },
+    where: { id: { in: entries.map((e) => e.productId) }, status: "ACTIVE" },
   });
   const byId = new Map(products.map((p) => [p.id, p]));
 

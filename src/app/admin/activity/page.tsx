@@ -38,9 +38,7 @@ export default async function AdminActivityPage() {
                   <td style={{ whiteSpace: "nowrap" }}>{e.createdAt.toLocaleString("en-GB")}</td>
                   <td>{e.actorEmail || "—"}</td>
                   <td>
-                    <span className={"badge " + (e.action.includes("failed") ? "warn" : "")}>
-                      {e.action}
-                    </span>
+                    <span className={"badge " + (e.action.includes("failed") ? "warn" : "")}>{e.action}</span>
                   </td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{e.target}</td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{e.detail}</td>

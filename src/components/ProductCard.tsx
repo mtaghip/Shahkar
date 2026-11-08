@@ -7,16 +7,18 @@ export default function ProductCard({ product }: { product: Product }) {
   const soldOut = product.reserved || product.stock <= 0;
   return (
     <Link href={`/product/${product.slug}`} className="card">
-      <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="4/5">
+      <ImageSlot
+        src={product.imageIds[0] ? "/api/media/" + product.imageIds[0] : undefined}
+        caption={product.imageCaption || product.name}
+        ratio="4/5"
+      >
         {soldOut ? <span className="tag-reserved">Reserved</span> : null}
       </ImageSlot>
       <div>
         <div className="card__tag">{product.tag}</div>
         <div className="card__name">{product.name}</div>
         <div className="card__meta">{product.meta}</div>
-        <div className="card__price">
-          {formatPrice(product.pricePence, product.priceFrom)}
-        </div>
+        <div className="card__price">{formatPrice(product.pricePence, product.priceFrom)}</div>
       </div>
     </Link>
   );

@@ -24,13 +24,9 @@ export default function CheckoutForm({
   items: CheckoutItem[];
   payWithCard: boolean;
 }) {
-  const [state, formAction, pending] = useActionState<CheckoutState, FormData>(
-    placeOrder,
-    {}
-  );
+  const [state, formAction, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
   const [shippingId, setShippingId] = useState(DEFAULT_SHIPPING_ID);
-  const shipping =
-    SHIPPING_RATES.find((r) => r.id === shippingId) ?? SHIPPING_RATES[0];
+  const shipping = SHIPPING_RATES.find((r) => r.id === shippingId) ?? SHIPPING_RATES[0];
   const [codeInput, setCodeInput] = useState("");
   const [applied, setApplied] = useState<{ code: string; pence: number } | null>(null);
   const [codeError, setCodeError] = useState("");
@@ -59,10 +55,7 @@ export default function CheckoutForm({
         alignItems: "start",
       }}
     >
-      <form
-        action={formAction}
-        style={{ display: "flex", flexDirection: "column", gap: 24 }}
-      >
+      <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         <div className="enquiry-row">
           <label className="field">
             <span>Name</span>
@@ -131,17 +124,33 @@ export default function CheckoutForm({
               aria-label="Discount code"
             />
             {applied ? (
-              <button type="button" className="btn btn--ghost btn--sm" onClick={() => { setApplied(null); setCodeInput(""); }}>
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => {
+                  setApplied(null);
+                  setCodeInput("");
+                }}
+              >
                 Remove
               </button>
             ) : (
-              <button type="button" className="btn btn--ghost btn--sm" onClick={applyCode} disabled={checking || !codeInput.trim()}>
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={applyCode}
+                disabled={checking || !codeInput.trim()}
+              >
                 {checking ? "Checking…" : "Apply"}
               </button>
             )}
           </div>
           {applied ? <small className="code-ok">Code {applied.code} applied.</small> : null}
-          {codeError ? <small className="code-error" role="alert">{codeError}</small> : null}
+          {codeError ? (
+            <small className="code-error" role="alert">
+              {codeError}
+            </small>
+          ) : null}
           <input type="hidden" name="discountCode" value={applied?.code ?? ""} />
         </div>
 

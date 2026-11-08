@@ -47,15 +47,14 @@ export async function createCheckoutSession(opts: {
           name: (opts.discountLabel || "Discount").slice(0, 40),
         })
       : null;
-  const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
-    opts.lines.map((l) => ({
-      quantity: l.qty,
-      price_data: {
-        currency: "gbp",
-        unit_amount: l.pricePence,
-        product_data: { name: l.name },
-      },
-    }));
+  const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = opts.lines.map((l) => ({
+    quantity: l.qty,
+    price_data: {
+      currency: "gbp",
+      unit_amount: l.pricePence,
+      product_data: { name: l.name },
+    },
+  }));
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -86,9 +85,7 @@ export async function createCheckoutSession(opts: {
 }
 
 /** Refund a payment intent in full. Returns { ok } — never throws. */
-export async function refundPaymentIntent(
-  paymentIntentId: string
-): Promise<{ ok: boolean; error?: string }> {
+export async function refundPaymentIntent(paymentIntentId: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const stripe = getStripe();
     await stripe.refunds.create({ payment_intent: paymentIntentId });

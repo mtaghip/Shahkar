@@ -24,10 +24,7 @@ export default async function CheckoutPage() {
       <div className="eyebrow" style={{ marginBottom: 18 }}>
         Checkout
       </div>
-      <h1
-        className="serif"
-        style={{ fontSize: "clamp(30px,4vw,48px)", margin: "0 0 28px" }}
-      >
+      <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,48px)", margin: "0 0 28px" }}>
         Where should it go?
       </h1>
 

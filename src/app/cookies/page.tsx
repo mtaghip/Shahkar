@@ -8,7 +8,11 @@ export const metadata = {
 
 const COOKIES = [
   { name: "shahkar_cart", purpose: "Remembers what is in your bag.", lasts: "30 days" },
-  { name: "shahkar_session", purpose: "Keeps you signed in to your account.", lasts: "30 days, or until you sign out" },
+  {
+    name: "shahkar_session",
+    purpose: "Keeps you signed in to your account.",
+    lasts: "30 days, or until you sign out",
+  },
 ];
 
 export default function CookiesPage() {
@@ -31,7 +35,9 @@ export default function CookiesPage() {
           <tbody>
             {COOKIES.map((c) => (
               <tr key={c.name}>
-                <td><code>{c.name}</code></td>
+                <td>
+                  <code>{c.name}</code>
+                </td>
                 <td>{c.purpose}</td>
                 <td>{c.lasts}</td>
               </tr>
@@ -53,8 +59,8 @@ export default function CookiesPage() {
 
       <h2>Controlling cookies</h2>
       <p>
-        You can block or delete cookies in your browser settings. If you block these two, your bag and
-        sign-in won&rsquo;t work.
+        You can block or delete cookies in your browser settings. If you block these two, your bag and sign-in
+        won&rsquo;t work.
       </p>
     </LegalPage>
   );

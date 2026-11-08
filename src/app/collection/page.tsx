@@ -5,11 +5,7 @@ import { getAllProducts, getByCategory } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ filter?: string }>;
-}) {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { filter } = await searchParams;
   const f = filter === "antique" || filter === "contemporary" ? filter : "all";
   const copy = COLLECTION_COPY[f];
@@ -37,19 +33,14 @@ export default async function CollectionPage({
   searchParams: Promise<{ filter?: string }>;
 }) {
   const { filter: raw } = await searchParams;
-  const filter: "all" | Category =
-    raw === "antique" || raw === "contemporary" ? raw : "all";
+  const filter: "all" | Category = raw === "antique" || raw === "contemporary" ? raw : "all";
 
   const copy = COLLECTION_COPY[filter];
-  const shown =
-    filter === "all" ? await getAllProducts() : await getByCategory(filter);
+  const shown = filter === "all" ? await getAllProducts() : await getByCategory(filter);
 
   return (
     <>
-      <section
-        className="wrap"
-        style={{ paddingTop: "clamp(48px,6vw,72px)", paddingBottom: 0 }}
-      >
+      <section className="wrap" style={{ paddingTop: "clamp(48px,6vw,72px)", paddingBottom: 0 }}>
         <div className="eyebrow" style={{ marginBottom: 22 }}>
           {copy.eyebrow}
         </div>
@@ -98,12 +89,7 @@ export default async function CollectionPage({
         >
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {FILTERS.map((f) => (
-              <Link
-                key={f.id}
-                href={f.href}
-                className="filter-tab"
-                data-active={f.id === filter}
-              >
+              <Link key={f.id} href={f.href} className="filter-tab" data-active={f.id === filter}>
                 {f.label}
               </Link>
             ))}
@@ -130,15 +116,13 @@ export default async function CollectionPage({
               maxWidth: "50ch",
             }}
           >
-            Nothing in this part of the collection just now. New pieces are
-            listed most Thursdays.
+            Nothing in this part of the collection just now. New pieces are listed most Thursdays.
           </p>
         ) : (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
               gap: "44px 36px",
             }}
           >

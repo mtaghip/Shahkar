@@ -57,17 +57,40 @@ export default function ProductGallery({
 
   return (
     <>
-      <button type="button" className="gallery-main" onClick={() => open(0)} aria-label={`Enlarge photo 1 of ${count}`}>
-        <ImageSlot src={src(imageIds[0])} caption={caption} ratio="1/1" sizes="(max-width: 900px) 100vw, 50vw" priority>
+      <button
+        type="button"
+        className="gallery-main"
+        onClick={() => open(0)}
+        aria-label={`Enlarge photo 1 of ${count}`}
+      >
+        <ImageSlot
+          src={src(imageIds[0])}
+          caption={caption}
+          ratio="1/1"
+          sizes="(max-width: 900px) 100vw, 50vw"
+          priority
+        >
           {reserved ? <span className="tag-reserved">Reserved</span> : null}
-          <span className="gallery-hint" aria-hidden="true">Click to enlarge</span>
+          <span className="gallery-hint" aria-hidden="true">
+            Click to enlarge
+          </span>
         </ImageSlot>
       </button>
       {count > 1 && (
         <div className="gallery-thumbs">
           {imageIds.slice(1).map((id, i) => (
-            <button key={id} type="button" onClick={() => open(i + 1)} aria-label={`Enlarge photo ${i + 2} of ${count}`}>
-              <ImageSlot src={src(id)} caption={`${name} — photo ${i + 2}`} ratio="1/1" sizes="(max-width: 900px) 33vw, 17vw" />
+            <button
+              key={id}
+              type="button"
+              onClick={() => open(i + 1)}
+              aria-label={`Enlarge photo ${i + 2} of ${count}`}
+            >
+              <ImageSlot
+                src={src(id)}
+                caption={`${name} — photo ${i + 2}`}
+                ratio="1/1"
+                sizes="(max-width: 900px) 33vw, 17vw"
+              />
             </button>
           ))}
         </div>
@@ -127,10 +150,20 @@ export default function ProductGallery({
         </div>
         {count > 1 && (
           <>
-            <button type="button" className="lightbox__nav lightbox__nav--prev" onClick={() => go(-1)} aria-label="Previous photo">
+            <button
+              type="button"
+              className="lightbox__nav lightbox__nav--prev"
+              onClick={() => go(-1)}
+              aria-label="Previous photo"
+            >
               ‹
             </button>
-            <button type="button" className="lightbox__nav lightbox__nav--next" onClick={() => go(1)} aria-label="Next photo">
+            <button
+              type="button"
+              className="lightbox__nav lightbox__nav--next"
+              onClick={() => go(1)}
+              aria-label="Next photo"
+            >
               ›
             </button>
           </>

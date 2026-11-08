@@ -26,11 +26,7 @@ const details = [
   },
 ];
 
-export default async function ContactPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ piece?: string }>;
-}) {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ piece?: string }> }) {
   const { piece } = await searchParams;
   const product = piece ? await getBySlug(String(piece).slice(0, 100)) : null;
   return (
@@ -69,16 +65,14 @@ export default async function ContactPage({
             textWrap: "pretty",
           }}
         >
-          Measurements, a photograph and a rough budget are enough to start.
-          There is no charge for a home trial and no obligation to keep
-          anything.
+          Measurements, a photograph and a rough budget are enough to start. There is no charge for a home
+          trial and no obligation to keep anything.
         </p>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
             gap: "36px 32px",
             borderTop: "1px solid var(--line)",
             paddingTop: 36,

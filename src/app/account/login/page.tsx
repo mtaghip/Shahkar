@@ -26,10 +26,7 @@ export default async function LoginPage({
       <div className="eyebrow" style={{ marginBottom: 20 }}>
         {admin ? "Staff sign-in" : "Account"}
       </div>
-      <h1
-        className="serif"
-        style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}
-      >
+      <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}>
         {admin ? "Sign in to manage the shop" : "Welcome back"}
       </h1>
       <p

@@ -4,13 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToCart } from "@/lib/actions/cart";
 
-export default function AddToBagButton({
-  productId,
-  soldOut,
-}: {
-  productId: string;
-  soldOut?: boolean;
-}) {
+export default function AddToBagButton({ productId, soldOut }: { productId: string; soldOut?: boolean }) {
   const [pending, startTransition] = useTransition();
   const [added, setAdded] = useState(false);
   const router = useRouter();

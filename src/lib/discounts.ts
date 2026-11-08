@@ -13,11 +13,19 @@ export interface DiscountRule {
 }
 
 export function normaliseCode(input: string): string {
-  return input.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 40);
+  return input
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "")
+    .slice(0, 40);
 }
 
 /** Why a code can't be used right now, or null if it can. */
-export function discountProblem(rule: DiscountRule | null, subtotalPence: number, now = new Date()): string | null {
+export function discountProblem(
+  rule: DiscountRule | null,
+  subtotalPence: number,
+  now = new Date()
+): string | null {
   if (!rule || !rule.active) return "That code isn't valid.";
   if (rule.startsAt && now < rule.startsAt) return "That code isn't active yet.";
   if (rule.endsAt && now > rule.endsAt) return "That code has expired.";

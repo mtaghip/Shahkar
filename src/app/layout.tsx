@@ -39,11 +39,7 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={`${display.variable} ${body.variable}`}>
       <body>
@@ -57,7 +53,9 @@ export default function RootLayout({
             priceRange: "££££",
           }}
         />
-        <SiteChrome header={<Header />} footer={<Footer />}>{children}</SiteChrome>
+        <SiteChrome header={<Header />} footer={<Footer />}>
+          {children}
+        </SiteChrome>
       </body>
     </html>
   );

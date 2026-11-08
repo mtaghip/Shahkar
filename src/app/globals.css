@@ -47,7 +47,10 @@ body {
 a {
   color: var(--ink);
   text-decoration: none;
-  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 a:hover {
   color: var(--madder);
@@ -919,11 +922,17 @@ img {
   animation: skeleton-shimmer 1.4s ease infinite;
 }
 @keyframes skeleton-shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .skeleton { animation: none; }
+  .skeleton {
+    animation: none;
+  }
 }
 
 /* ---------- product gallery & lightbox ---------- */
@@ -1026,10 +1035,16 @@ img {
   z-index: 2;
   font-size: 32px;
 }
-.lightbox__nav--prev { left: 12px; }
-.lightbox__nav--next { right: 12px; }
+.lightbox__nav--prev {
+  left: 12px;
+}
+.lightbox__nav--next {
+  right: 12px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .lightbox__stage img { transition: none; }
+  .lightbox__stage img {
+    transition: none;
+  }
 }
 
 /* ---------- legal pages ---------- */

@@ -14,7 +14,9 @@ export default async function ResetPasswordPage({
       className="wrap narrow"
       style={{ paddingTop: "clamp(56px,8vw,110px)", paddingBottom: "clamp(56px,8vw,110px)" }}
     >
-      <div className="eyebrow" style={{ marginBottom: 20 }}>Account</div>
+      <div className="eyebrow" style={{ marginBottom: 20 }}>
+        Account
+      </div>
       <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,42px)", margin: "0 0 12px" }}>
         Choose a new password
       </h1>
@@ -27,7 +29,11 @@ export default async function ResetPasswordPage({
         </>
       ) : (
         <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--muted-2)" }}>
-          This link is incomplete. <Link href="/account/forgot" style={{ color: "var(--madder)" }}>Request a new one</Link>.
+          This link is incomplete.{" "}
+          <Link href="/account/forgot" style={{ color: "var(--madder)" }}>
+            Request a new one
+          </Link>
+          .
         </p>
       )}
     </section>

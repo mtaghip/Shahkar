@@ -11,7 +11,7 @@ export async function addToCart(productId: string): Promise<void> {
   const entries = await readCart();
   const existing = entries.find((e) => e.productId === productId);
   if (existing) {
-    existing.qty = Math.min(existing.qty+1,product.stock,100);
+    existing.qty = Math.min(existing.qty + 1, product.stock, 100);
   } else {
     entries.push({ productId, qty: 1 });
   }
@@ -20,10 +20,7 @@ export async function addToCart(productId: string): Promise<void> {
   revalidatePath("/cart");
 }
 
-export async function updateQty(
-  productId: string,
-  qty: number
-): Promise<void> {
+export async function updateQty(productId: string, qty: number): Promise<void> {
   const entries = await readCart();
   const entry = entries.find((e) => e.productId === productId);
   if (entry) {

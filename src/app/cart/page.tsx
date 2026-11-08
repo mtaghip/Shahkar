@@ -21,22 +21,14 @@ export default async function CartPage() {
       <div className="eyebrow" style={{ marginBottom: 18 }}>
         Your bag
       </div>
-      <h1
-        className="serif"
-        style={{ fontSize: "clamp(30px,4vw,48px)", margin: "0 0 40px" }}
-      >
-        {count === 0
-          ? "Your bag is empty"
-          : `${count} ${count === 1 ? "piece" : "pieces"} in your bag`}
+      <h1 className="serif" style={{ fontSize: "clamp(30px,4vw,48px)", margin: "0 0 40px" }}>
+        {count === 0 ? "Your bag is empty" : `${count} ${count === 1 ? "piece" : "pieces"} in your bag`}
       </h1>
 
       {lines.length === 0 ? (
         <p style={{ fontSize: 16, lineHeight: 1.7, color: "var(--muted-2)" }}>
           Nothing here yet.{" "}
-          <Link
-            href="/collection"
-            style={{ color: "var(--madder)", borderBottom: "1px solid #c8a9a0" }}
-          >
+          <Link href="/collection" style={{ color: "var(--madder)", borderBottom: "1px solid #c8a9a0" }}>
             Browse the collection
           </Link>
           .
@@ -45,8 +37,7 @@ export default async function CartPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
             gap: "clamp(32px,5vw,64px)",
             alignItems: "start",
           }}
@@ -98,11 +89,7 @@ export default async function CartPage() {
                           <form action={updateQtyForm}>
                             <input type="hidden" name="productId" value={product.id} />
                             <input type="hidden" name="qty" value={qty - 1} />
-                            <button
-                              type="submit"
-                              aria-label="Decrease quantity"
-                              disabled={qty <= 1}
-                            >
+                            <button type="submit" aria-label="Decrease quantity" disabled={qty <= 1}>
                               −
                             </button>
                           </form>
@@ -116,9 +103,7 @@ export default async function CartPage() {
                           </form>
                         </div>
                       ) : (
-                        <span style={{ fontSize: 13, color: "var(--muted)" }}>
-                          One only
-                        </span>
+                        <span style={{ fontSize: 13, color: "var(--muted)" }}>One only</span>
                       )}
                       <form action={removeFromCartForm}>
                         <input type="hidden" name="productId" value={product.id} />
@@ -183,11 +168,7 @@ export default async function CartPage() {
               }}
             />
             <Row label="Total" value={formatExact(totalPence)} strong />
-            <Link
-              href="/checkout"
-              className="btn btn--solid btn--block"
-              style={{ marginTop: 26 }}
-            >
+            <Link href="/checkout" className="btn btn--solid btn--block" style={{ marginTop: 26 }}>
               Checkout
             </Link>
             <p
@@ -198,8 +179,7 @@ export default async function CartPage() {
                 margin: "16px 0 0",
               }}
             >
-              Every piece includes UK delivery, underlay and fitting, and a
-              14-day home trial.
+              Every piece includes UK delivery, underlay and fitting, and a 14-day home trial.
             </p>
           </aside>
         </div>
@@ -208,15 +188,7 @@ export default async function CartPage() {
   );
 }
 
-function Row({
-  label,
-  value,
-  strong,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-}) {
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div
       style={{
@@ -228,9 +200,7 @@ function Row({
         fontWeight: strong ? 500 : 400,
       }}
     >
-      <span style={{ color: strong ? "var(--ink)" : "var(--muted)" }}>
-        {label}
-      </span>
+      <span style={{ color: strong ? "var(--ink)" : "var(--muted)" }}>{label}</span>
       <span>{value}</span>
     </div>
   );
