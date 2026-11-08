@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NewsletterForm from "./NewsletterForm";
+import { COMPANY, legalLine } from "@/lib/company";
 
 export default function Footer() {
   return (
@@ -13,6 +14,13 @@ export default function Footer() {
             before they reach the site.
           </p>
           <NewsletterForm />
+          <p style={{ fontSize: 12, marginTop: 10, color: "var(--on-ink-dim)" }}>
+            Unsubscribe any time —{" "}
+            <Link href="/newsletter/unsubscribe" style={{ color: "var(--on-ink-2)" }}>
+              here
+            </Link>
+            .
+          </p>
         </div>
 
         <div className="footer__col">
@@ -43,11 +51,16 @@ export default function Footer() {
       </div>
 
       <div className="footer__legal">
-        <div>&copy; 2026 Shahkar Carpets Ltd · Registered in England 08812449</div>
+        <div>&copy; {new Date().getFullYear()} {legalLine()}</div>
         <div className="footer__links">
-          <Link href="/contact">Terms</Link>
-          <Link href="/contact">Privacy</Link>
-          <Link href="/contact">Instagram</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/cookies">Cookies</Link>
+          {COMPANY.instagram ? (
+            <a href={COMPANY.instagram} target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+          ) : null}
         </div>
       </div>
     </footer>

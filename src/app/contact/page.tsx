@@ -1,5 +1,6 @@
 import EnquiryForm from "@/components/EnquiryForm";
 import { getBySlug } from "@/lib/products";
+import { COMPANY } from "@/lib/company";
 
 export const metadata = {
   alternates: { canonical: "/contact" },
@@ -11,14 +12,14 @@ export const metadata = {
 const details = [
   {
     k: "Showroom",
-    lines: ["The Wool Barn, Sheep Street", "Stow-on-the-Wold", "Gloucestershire GL54 1AA"],
+    lines: COMPANY.showroom,
   },
   {
     k: "Opening",
     lines: ["Tuesday–Saturday, 10–5", "Sunday & Monday by appointment"],
   },
-  { k: "Telephone", lines: ["01451 830 114"] },
-  { k: "Email", lines: ["hello@shahkarcarpets.co.uk"] },
+  { k: "Telephone", lines: [COMPANY.phone] },
+  { k: "Email", lines: [COMPANY.email] },
   {
     k: "Trade",
     lines: ["Designers and architects: ask for the trade folio and net pricing"],

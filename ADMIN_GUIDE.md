@@ -35,3 +35,11 @@ Product images are stored as optimised WebP bytes in PostgreSQL. Monitor databas
 
 - **Enquiries:** the contact form and every product's *Request a home trial* button save an enquiry to *Admin → Inbox* (and email you when Resend is configured). Reply by email, then mark it replied or closed.
 - **Newsletter:** footer sign-ups are stored with the time consent was given. Download the list as CSV from the Inbox. (Sending campaigns is done in your email tool; unsubscribes must be honoured there.)
+
+## Privacy & legal
+
+- **Terms, Privacy and Cookies** pages are written for UK consumer and data-protection law (Consumer Contracts Regulations, Consumer Rights Act, UK GDPR, PECR). They are a solid starting point, not legal advice — have a solicitor review them before launch, especially the returns terms for made-to-measure pieces.
+- **Business details** (company name, number, VAT number, address, phone, email, Instagram) come from the `NEXT_PUBLIC_COMPANY_*` / `NEXT_PUBLIC_CONTACT_*` settings in Vercel. Registration numbers stay hidden until you set them.
+- **Subject access:** on a customer's page choose *Download their data (JSON)*. Signed-in customers can also download their own data from their account page.
+- **Erasure:** type ERASE on the customer's page. This deletes their login, enquiries, newsletter record and email history and anonymises the profile. Order records are kept for six years (tax law). Every export and erasure is recorded in *Activity*.
+- **Cookies:** the site sets only two strictly necessary cookies (bag and sign-in), so no consent banner is required. If you later add analytics or marketing tools, you will need one.

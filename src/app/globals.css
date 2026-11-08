@@ -1031,3 +1031,35 @@ img {
 @media (prefers-reduced-motion: reduce) {
   .lightbox__stage img { transition: none; }
 }
+
+/* ---------- legal pages ---------- */
+.legal h2 {
+  font-family: var(--font-display), "Libre Caslon Display", serif;
+  font-size: 22px;
+  margin: 40px 0 12px;
+}
+.legal p,
+.legal li {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted-2);
+}
+.legal ul {
+  padding-left: 20px;
+}
+.legal li + li {
+  margin-top: 8px;
+}
+.legal a {
+  color: var(--madder);
+  border-bottom: 1px solid #c8a9a0;
+}
+.legal__intro {
+  font-size: 17px !important;
+  color: var(--ink) !important;
+}
+.legal__updated {
+  margin-top: 48px;
+  font-size: 12px !important;
+  color: var(--muted) !important;
+}

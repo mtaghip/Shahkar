@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth";
 import { prisma } from "@/lib/prisma";
 import { formatExact } from "@/lib/money";
+import { COMPANY } from "@/lib/company";
 
 export const metadata = { title: "Your account — Shahkar Carpets" };
 export const dynamic = "force-dynamic";
@@ -63,6 +64,9 @@ export default async function AccountPage() {
               Admin dashboard
             </Link>
           )}
+          <a href="/api/account/export" className="btn btn--ghost btn--sm">
+            Download my data
+          </a>
           <form action={logoutAction}>
             <button type="submit" className="btn btn--ghost btn--sm">
               Sign out
@@ -131,6 +135,13 @@ export default async function AccountPage() {
           </table>
         </div>
       )}
+      <p style={{ marginTop: 40, fontSize: 13, lineHeight: 1.7, color: "var(--muted)" }}>
+        To close your account or have your information erased, email{" "}
+        <a href={`mailto:${COMPANY.email}?subject=Delete%20my%20account`} style={{ color: "var(--madder)" }}>
+          {COMPANY.email}
+        </a>
+        . See our <Link href="/privacy" style={{ color: "var(--madder)" }}>privacy notice</Link>.
+      </p>
     </section>
   );
 }

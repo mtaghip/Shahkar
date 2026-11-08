@@ -250,3 +250,25 @@ export async function setEnquiryStatusAction(formData: FormData): Promise<void> 
   revalidatePath("/admin/inbox");
   revalidatePath("/admin");
 }
+
+export interface EraseState {
+  error?: string;
+}
+
+/** Right to erasure — requires typing ERASE to confirm. Orders are retained. */
+export async function eraseCustomerAction(
+  id: string,
+  _prev: EraseState,
+  formData: FormData
+): Promise<EraseState> {
+  const admin = await requireAdmin();
+  if (String(formData.get("confirm") || "").trim() !== "ERASE") {
+    return { error: "Type ERASE to confirm. This cannot be undone." };
+  }
+  const { erasePersonalData } = await import("@/lib/gdpr");
+  const email = await erasePersonalData(id);
+  if (!email) return { error: "Customer not found." };
+  await audit(admin, "customer.erase", id, "personal data erased; order records retained");
+  revalidatePath("/admin/customers");
+  redirect(`/admin/customers/${id}?erased=1`);
+}

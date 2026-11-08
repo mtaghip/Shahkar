@@ -75,3 +75,17 @@ export async function subscribeNewsletter(_prev: FormState, form: FormData): Pro
   revalidatePath("/admin/inbox");
   return { ok: true };
 }
+
+/** Newsletter opt-out. Same reply whether or not the address was subscribed. */
+export async function unsubscribeNewsletter(_prev: FormState, form: FormData): Promise<FormState> {
+  const email = field(form, "email", 254).toLowerCase();
+  if (!validEmail(email)) return { error: "Please enter a valid email address." };
+  if (await isRateLimited([`unsubscribe:ip:${await clientIp()}`], 20, 60 * 60)) return { error: TOO_MANY };
+  await prisma.newsletterSubscriber.updateMany({
+    where: { email, unsubscribedAt: null },
+    data: { unsubscribedAt: new Date() },
+  });
+  await prisma.customer.updateMany({ where: { email }, data: { marketingConsent: false } });
+  revalidatePath("/admin/inbox");
+  return { ok: true };
+}
