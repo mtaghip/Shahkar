@@ -2,15 +2,16 @@ import AuthForm from "@/components/AuthForm";
 import { loginAction } from "@/lib/actions/auth";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export const metadata = { title: "Sign in — Shahkar Carpets" };
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ admin?: string; next?: string }>;
+  searchParams: Promise<{ admin?: string; next?: string; reset?: string }>;
 }) {
-  const { admin, next } = await searchParams;
+  const { admin, next, reset } = await searchParams;
   const user = await getCurrentUser();
   if (user) redirect(user.role === "admin" ? "/admin" : "/account");
 
@@ -43,7 +44,15 @@ export default async function LoginPage({
           ? "Staff only — sign in to reach the admin dashboard."
           : "Sign in to see your orders and home trials."}
       </p>
+      {reset ? (
+        <p className="form-ok" role="status" style={{ margin: "0 0 24px" }}>
+          Your password has been changed. Please sign in.
+        </p>
+      ) : null}
       <AuthForm mode="login" action={loginAction} next={next} />
+      <p className="authform__alt" style={{ marginTop: 18 }}>
+        <Link href="/account/forgot">Forgotten your password?</Link>
+      </p>
     </section>
   );
 }

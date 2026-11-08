@@ -4,6 +4,7 @@ import {requireAdmin} from "@/lib/auth";
 import {emailConfigured,validEmail} from "@/lib/admin-validation";
 import {redirect} from "next/navigation";
 import {revalidatePath} from "next/cache";
+import {audit} from "@/lib/audit";
 export async function saveEmail(id:string|null,_prev:{error?:string},form:FormData):Promise<{error?:string}> {
  await requireAdmin();
  const customerId=String(form.get("customerId") || "");
@@ -22,7 +23,7 @@ export async function saveEmail(id:string|null,_prev:{error?:string},form:FormDa
  revalidatePath("/admin/email");redirect("/admin/email/"+id);
 }
 export async function sendEmail(id:string,_prev:{error?:string},form:FormData):Promise<{error?:string}> {
- await requireAdmin();
+ const admin = await requireAdmin();
  if(form.get("confirm")!=="on")return {error:"Confirm the recipient and message before sending."};
  if(!emailConfigured())return {error:"Email sending is not configured. See Settings."};
  const message=await prisma.emailMessage.findUnique({where:{id}});
@@ -38,6 +39,7 @@ export async function sendEmail(id:string,_prev:{error?:string},form:FormData):P
   else {error="The email service did not confirm the outcome. Check Resend before sending another message.";}
  }catch{error="Delivery outcome is uncertain. Check Resend before sending another message.";}
  await prisma.emailMessage.update({where:{id},data:{status,providerId,error,sentAt:status==="ACCEPTED"?new Date():null}});
+ await audit(admin,"email.send",id,`${message.recipient} · ${status}`);
  revalidatePath("/admin/email");revalidatePath("/admin/customers/"+message.customerId);revalidatePath("/admin/email/"+id);
  return error ? {error} : {};
 }

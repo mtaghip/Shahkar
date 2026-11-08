@@ -4,8 +4,9 @@ import { requireAdmin } from "@/lib/auth";
 import { validEmail } from "@/lib/admin-validation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { audit } from "@/lib/audit";
 export async function saveCustomer(id:string|null,_prev:{error?:string},form:FormData):Promise<{error?:string}> {
- await requireAdmin();
+ const admin = await requireAdmin();
  const email = String(form.get("email") || "").trim().toLowerCase();
  const name = String(form.get("name") || "").trim();
  if (!validEmail(email) || !name || name.length > 150) return {error:"Enter a name and valid email address."};
@@ -15,6 +16,7 @@ export async function saveCustomer(id:string|null,_prev:{error?:string},form:For
  let customer;
  try {customer = id ? await prisma.customer.update({where:{id},data}) : await prisma.customer.create({data});}
  catch {return {error:"Could not save the customer. Refresh and try again."};}
+ await audit(admin, id ? "customer.update" : "customer.create", customer.id, email);
  revalidatePath("/admin/customers");revalidatePath("/admin");
  redirect("/admin/customers/"+customer.id+"?saved=1");
 }

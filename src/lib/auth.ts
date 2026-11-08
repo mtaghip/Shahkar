@@ -40,15 +40,15 @@ function sign(payload: string): string {
   return createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-function makeToken(userId: string): string {
+function makeToken(userId: string, version: number): string {
   const exp = Date.now() + MAX_AGE_S * 1000;
-  const payload = Buffer.from(JSON.stringify({ uid: userId, exp })).toString(
+  const payload = Buffer.from(JSON.stringify({ uid: userId, exp, v: version })).toString(
     "base64url"
   );
   return `${payload}.${sign(payload)}`;
 }
 
-function readToken(token: string): string | null {
+function readToken(token: string): { uid: string; v: number } | null {
   const [payload, sig] = token.split(".");
   if (!payload || !sig) return null;
   const expected = sign(payload);
@@ -57,12 +57,12 @@ function readToken(token: string): string | null {
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   try {
-    const { uid, exp } = JSON.parse(
+    const { uid, exp, v } = JSON.parse(
       Buffer.from(payload, "base64url").toString()
     );
     if (typeof uid !== "string" || typeof exp !== "number") return null;
     if (Date.now() > exp) return null;
-    return uid;
+    return { uid, v: typeof v === "number" ? v : 0 };
   } catch {
     return null;
   }
@@ -70,9 +70,12 @@ function readToken(token: string): string | null {
 
 /* ---------- session cookie helpers ---------- */
 
-export async function createSession(userId: string): Promise<void> {
+export async function createSession(
+  userId: string,
+  sessionVersion = 0
+): Promise<void> {
   const store = await cookies();
-  store.set(COOKIE, makeToken(userId), {
+  store.set(COOKIE, makeToken(userId, sessionVersion), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -91,9 +94,12 @@ export async function getCurrentUser(): Promise<User | null> {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
   if (!token) return null;
-  const uid = readToken(token);
-  if (!uid) return null;
-  return prisma.user.findUnique({ where: { id: uid } });
+  const session = readToken(token);
+  if (!session) return null;
+  const user = await prisma.user.findUnique({ where: { id: session.uid } });
+  // A password change bumps sessionVersion, signing out every older session.
+  if (!user || user.sessionVersion !== session.v) return null;
+  return user;
 }
 
 export async function requireUser(): Promise<User> {

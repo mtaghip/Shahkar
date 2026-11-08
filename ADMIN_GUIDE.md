@@ -24,3 +24,9 @@ The dashboard distinguishes drafts, sending, provider-accepted, rejected and unc
 Set a strong `AUTH_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in Vercel. Production login is disabled without `AUTH_SECRET`. Existing catalogue entries are preserved by migrations and seed.
 
 Product images are stored as optimised WebP bytes in PostgreSQL. Monitor database size; larger catalogues should move media to object storage. Draft photos are admin-only. Removed photos can remain in storage; automated orphan cleanup is not implemented.
+
+## Security
+
+- **Sign-in protection:** repeated failed sign-ins are rate-limited per email and per network address (a short wait, then it resets). Registration and password-reset requests are rate-limited too.
+- **Forgotten passwords:** customers and admins can use *Forgotten your password?* on the sign-in page. The link is emailed (requires the Resend setup), works once and expires after an hour. Administrator passwords must be at least 12 characters. Changing a password signs that account out on every other device.
+- **Activity:** *Admin → Activity* lists the last 200 administrator actions and admin sign-ins (including failed attempts) with who, what and when.

@@ -19,8 +19,10 @@ model User {
   name         String?
   passwordHash String
   role         String   @default("customer") // "customer" | "admin"
+  sessionVersion Int    @default(0) // bump to sign out every existing session
   createdAt    DateTime @default(now())
   orders       Order[]
+  resetTokens  PasswordResetToken[]
 }
 
 model Product {
@@ -132,4 +134,32 @@ model EmailMessage {
   createdAt  DateTime @default(now())
   sentAt     DateTime?
   @@index([customerId, createdAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique // sha256 of the emailed token; the token itself is never stored
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  @@index([userId])
+}
+
+model RateLimit {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorEmail String   @default("")
+  action     String
+  target     String   @default("")
+  detail     String   @default("")
+  createdAt  DateTime @default(now())
+  @@index([createdAt])
 }

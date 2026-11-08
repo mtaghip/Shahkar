@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { poundsToPence } from "@/lib/money";
 import { slugify } from "@/lib/products";
 import { cleanSpecs } from "@/lib/specs";
+import { audit } from "@/lib/audit";
 
 export interface ProductFormState {
   error?: string;
@@ -43,7 +44,7 @@ export async function createProductAction(
   _prev: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const data = readProductForm(formData);
 
   if (!data.name || !data.slug) return { error: "A name is required." };
@@ -56,7 +57,8 @@ export async function createProductAction(
 
   if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
   if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
-  await prisma.product.create({ data });
+  const created = await prisma.product.create({ data });
+  await audit(admin, "product.create", created.id, data.name);
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
@@ -69,7 +71,7 @@ export async function updateProductAction(
   _prev: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const data = readProductForm(formData);
 
   if (!data.name || !data.slug) return { error: "A name is required." };
@@ -85,6 +87,7 @@ export async function updateProductAction(
   if (data.imageIds.length > 6 || await prisma.media.count({where:{id:{in:data.imageIds}}}) !== data.imageIds.length) return {error:"Please upload valid product photos."};
   if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
   await prisma.product.update({ where: { id }, data });
+  await audit(admin, "product.update", id, `${data.name} · ${data.status}`);
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
@@ -94,18 +97,20 @@ export async function updateProductAction(
 }
 
 export async function deleteProductAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
   // Keep referential integrity: only delete products with no order history.
   const orders = await prisma.orderItem.count({ where: { productId: id } });
   if (orders === 0) {
     await prisma.product.delete({ where: { id } });
+    await audit(admin, "product.delete", id);
   } else {
     await prisma.product.update({
       where: { id },
       data: { stock: 0, reserved: true, featured: false },
     });
+    await audit(admin, "product.retire", id, "has order history; hidden instead of deleted");
   }
   revalidatePath("/admin");
   revalidatePath("/collection");
@@ -113,12 +118,13 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
 }
 
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "");
   const allowed = ["PENDING_PAYMENT", "PAID", "CANCELLED"];
   if (!id || !allowed.includes(status)) return;
   await prisma.order.update({ where: { id }, data: { status } });
+  await audit(admin, "order.set_status", id, status);
   revalidatePath("/admin");
   revalidatePath("/admin/orders");
 }
@@ -133,27 +139,29 @@ function revalidateOrder(id: string) {
 
 /** Record an offline (e.g. bank transfer) payment. Does not charge a card. */
 export async function markOrderPaidAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
   const { markOrderPaid } = await import("@/lib/payments");
   await markOrderPaid(id, { provider: "offline" });
+  await audit(admin, "order.mark_paid", id, "offline payment recorded");
   revalidateOrder(id);
 }
 
 /** Cancel an unpaid order and return its items to stock. */
 export async function cancelOrderAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
   const { expireOrder } = await import("@/lib/payments");
   await expireOrder(id); // only cancels PENDING_PAYMENT orders, restocks them
+  await audit(admin, "order.cancel", id, "");
   revalidateOrder(id);
 }
 
 /** Refund a paid order: Stripe refund if applicable, restock, email the buyer. */
 export async function refundOrderAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
   const order = await prisma.order.findUnique({ where: { id } });
@@ -165,12 +173,13 @@ export async function refundOrderAction(formData: FormData): Promise<void> {
   }
   const { refundOrder } = await import("@/lib/payments");
   await refundOrder(id);
+  await audit(admin, "order.refund", id, "");
   revalidateOrder(id);
 }
 
 /** Mark an order fulfilled, save tracking, and email the buyer. */
 export async function fulfilOrderAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) return;
   const trackingCarrier = String(formData.get("trackingCarrier") || "").trim().slice(0, 100);
@@ -193,12 +202,13 @@ export async function fulfilOrderAction(formData: FormData): Promise<void> {
   const { sendMail, orderShippedEmail } = await import("@/lib/mailer");
   const { subject, text } = orderShippedEmail(order);
   await sendMail(order.email, subject, text, `order-shipped-${order.id}`);
+  await audit(admin, "order.fulfil", id, `${trackingCarrier} ${trackingNumber}`.trim());
   revalidateOrder(id);
 }
 
 /** Advance a return through its lifecycle; "REFUNDED" also refunds the order. */
 export async function processReturnAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const returnId = String(formData.get("returnId") || "");
   const status = String(formData.get("status") || "");
   const allowed = ["APPROVED", "RECEIVED", "REFUNDED", "DECLINED"];
@@ -220,6 +230,7 @@ export async function processReturnAction(formData: FormData): Promise<void> {
   }
 
   await prisma.return.update({ where: { id: returnId }, data: { status } });
+  await audit(admin, "return." + status.toLowerCase(), returnId, `order ${ret.orderId}`);
   revalidateOrder(ret.orderId);
   revalidatePath("/admin/returns");
 }

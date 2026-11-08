@@ -55,8 +55,25 @@ assert.equal((await db.query('SELECT "status" FROM "Return" WHERE "id" = \'ret1\
 await assert.rejects(db.query('INSERT INTO "Return" ("id","orderId","updatedAt") VALUES ($1,$2,CURRENT_TIMESTAMP)',["ret2","missing-order"]));
 await db.exec(readFileSync(new URL("../prisma/migrations/20261108143824_product_specs/migration.sql",import.meta.url),"utf8"));
 assert.equal((await db.query('SELECT "specs" FROM "Product" WHERE "id" = \'p1\'')).rows[0].specs,"");
+await db.exec(readFileSync(new URL("../prisma/migrations/20261108144100_auth_hardening/migration.sql",import.meta.url),"utf8"));
+assert.equal((await db.query('SELECT "sessionVersion" FROM "User" WHERE "id" = \'u1\'')).rows[0].sessionVersion,0);
+// Run the real rate limiter against this database.
+{
+ const toSql=(strings,...values)=>({text:strings.reduce((acc,str,i)=>acc+"$"+i+str),values});
+ const {isRateLimited}=load("src/lib/rate-limit.ts",{
+  "server-only":{},
+  "next/headers":{headers:async()=>new Map()},
+  "./prisma":{prisma:{$queryRaw:async(strings,...values)=>{const q=toSql(strings,...values);return (await db.query(q.text,q.values)).rows;},rateLimit:{deleteMany:()=>Promise.resolve()}}},
+ });
+ const results=[];
+ for(let i=0;i<4;i++)results.push(await isRateLimited(["login:email:x@example.com"],3,900));
+ assert.deepEqual(results,[false,false,false,true]);
+ assert.equal(await isRateLimited(["login:email:other@example.com"],3,900),false);
+ await db.query('UPDATE "RateLimit" SET "resetAt" = NOW() - INTERVAL \'1 minute\' WHERE "key" = \'login:email:x@example.com\'');
+ assert.equal(await isRateLimited(["login:email:x@example.com"],3,900),false);
+}
 await db.close();
-console.log("PASS PostgreSQL migrations, customer backfill, existing product preservation, draft filtering, email send lock, photo conversion and storage, payments/returns schema");
+console.log("PASS PostgreSQL migrations, customer backfill, existing product preservation, draft filtering, email send lock, photo conversion and storage, payments/returns schema, rate limiting");
 
 // Shipping rates resolve consistently.
 const {shippingRate,DEFAULT_SHIPPING_ID}=load("src/lib/shipping.ts");
@@ -98,7 +115,7 @@ for(const [file,functions] of [
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
  ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction"]]
 ]){
- const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x},"@/lib/specs":{cleanSpecs:x=>x}});
+ const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x},"@/lib/specs":{cleanSpecs:x=>x},"@/lib/audit":{audit:async()=>{}}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);
 }
 console.log("PASS unauthenticated admin mutation protection");
