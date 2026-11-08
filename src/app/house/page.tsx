@@ -4,6 +4,7 @@ import { countByCategory } from "@/lib/products";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
+  alternates: { canonical: "/house" },
   title: "The House — Shahkar Carpets",
   description:
     "Fifty years in England, three hundred on the loom. The story of Shahkar Carpets, from a single room in Tehran to a Cotswolds showroom.",

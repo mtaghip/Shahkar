@@ -5,6 +5,22 @@ import { getAllProducts, getByCategory } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter } = await searchParams;
+  const f = filter === "antique" || filter === "contemporary" ? filter : "all";
+  const copy = COLLECTION_COPY[f];
+  const label = f === "all" ? "Antique & contemporary handmade carpets" : copy.eyebrow;
+  return {
+    title: `${label} — the collection | Shahkar Carpets`,
+    description: copy.blurb,
+    alternates: { canonical: f === "all" ? "/collection" : `/collection?filter=${f}` },
+  };
+}
+
 const FILTERS: { id: "all" | Category; label: string; href: string }[] = [
   { id: "all", label: "Everything", href: "/collection" },
   { id: "antique", label: "Antique", href: "/collection?filter=antique" },

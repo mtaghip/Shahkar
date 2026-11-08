@@ -5,8 +5,41 @@ import AddToBagButton from "@/components/AddToBagButton";
 import { parseSpecs } from "@/lib/specs";
 import { getBySlug } from "@/lib/products";
 import { formatPrice } from "@/lib/money";
+import JsonLd from "@/components/JsonLd";
+import type { Metadata } from "next";
+import { staticSiteOrigin } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
+
+function summary(text: string, max = 158): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length > max ? clean.slice(0, max - 1).trimEnd() + "…" : clean;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getBySlug(slug);
+  if (!product) return { title: "Not found — Shahkar Carpets", robots: { index: false } };
+  const title = `${product.name} — ${product.tag || "Handmade carpet"} | Shahkar Carpets`;
+  const description = summary(
+    `${product.meta}. ${formatPrice(product.pricePence, product.priceFrom)}. ${product.description}`
+  );
+  const images = product.imageIds.slice(0, 1).map((id) => ({
+    url: `/api/media/${id}`,
+    alt: product.imageCaption || product.name,
+  }));
+  return {
+    title,
+    description,
+    alternates: { canonical: `/product/${product.slug}` },
+    openGraph: { title, description, images, type: "website" },
+    twitter: { card: images.length ? "summary_large_image" : "summary", title, description },
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -23,8 +56,32 @@ export default async function ProductPage({
     specs.unshift({ k: "Reference", v: product.sku });
   }
 
+  const origin = staticSiteOrigin();
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    sku: product.sku || undefined,
+    category: product.category === "antique" ? "Antique rugs" : "Handmade rugs",
+    image: product.imageIds.map((id) => `${origin}/api/media/${id}`),
+    brand: { "@type": "Brand", name: "Shahkar Carpets" },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "GBP",
+      price: (product.pricePence / 100).toFixed(2),
+      availability: soldOut ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+      itemCondition:
+        product.category === "antique"
+          ? "https://schema.org/UsedCondition"
+          : "https://schema.org/NewCondition",
+      url: `${origin}/product/${product.slug}`,
+    },
+  };
+
   return (
     <>
+      <JsonLd data={productLd} />
       {/* breadcrumb */}
       <div
         className="wrap"

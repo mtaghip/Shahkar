@@ -4,6 +4,7 @@ import ProductCard from "@/components/ProductCard";
 import { getFeatured, countByCategory } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
+export const metadata = { alternates: { canonical: "/" } };
 
 const homeJournal = [
   {

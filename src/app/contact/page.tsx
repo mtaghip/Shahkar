@@ -1,6 +1,7 @@
 import EnquiryForm from "@/components/EnquiryForm";
 
 export const metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact — Shahkar Carpets",
   description:
     "Tell us the room and we will send you three carpets. Showroom at The Wool Barn, Stow-on-the-Wold. No charge for a home trial.",

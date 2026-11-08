@@ -2,6 +2,7 @@ import ImageSlot from "@/components/ImageSlot";
 import { POSTS } from "@/lib/catalogue";
 
 export const metadata = {
+  alternates: { canonical: "/journal" },
   title: "Journal — Shahkar Carpets",
   description:
     "Notes on wool, dye and use. Written by us, mostly for people who own one carpet and want to understand it better.",
