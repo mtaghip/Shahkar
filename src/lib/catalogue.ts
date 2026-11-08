@@ -14,6 +14,7 @@ export interface SeedProduct {
   description: string;
   provenance: string;
   imageCaption: string;
+  specs?: string;
   reserved?: boolean;
   featured?: boolean;
   stock?: number;
@@ -22,6 +23,7 @@ export interface SeedProduct {
 export const SEED_PRODUCTS: SeedProduct[] = [
   {
     slug: "heriz",
+    specs: "Origin: Heriz district, north-west Iran\nDate: circa 1910\nSize: 3.62 × 2.71 m (11ft 11in × 8ft 11in)\nMaterials: Hand-spun wool pile on a cotton foundation\nKnot count: Approx. 120,000 per m², symmetrical\nCondition: Very good; low even pile, one reweave in lower border\nPile height: 6 mm",
     name: "Heriz, Azerbaijan",
     tag: "Antique · c. 1910",
     meta: "3.62 × 2.71 m · wool on cotton",
@@ -36,6 +38,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "serapi",
+    specs: "Origin: Serab region, north-west Iran\nDate: circa 1890\nSize: 4.10 × 0.94 m\nMaterials: Wool pile on a wool foundation\nCondition: Low, even pile; no repairs",
     name: "Serapi runner",
     tag: "Antique · c. 1890",
     meta: "4.10 × 0.94 m · wool on wool",
@@ -49,6 +52,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "bakhshaish",
+    specs: "Origin: Bakhshaish, north-west Iran\nDate: circa 1880\nSize: 3.05 × 2.44 m\nMaterials: Wool pile on a wool foundation\nLiterature: Published in Hali, issue 186",
     name: "Bakhshaish",
     tag: "Antique · c. 1880",
     meta: "3.05 × 2.44 m · wool on wool",
@@ -62,6 +66,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "oushak",
+    specs: "Origin: Uşak, west Anatolia\nDate: circa 1920\nSize: 4.01 × 3.15 m\nMaterials: Wool pile on a cotton foundation\nCondition: Minor edge binding replaced",
     name: "Oushak, west Anatolia",
     tag: "Antique · c. 1920",
     meta: "4.01 × 3.15 m · wool on cotton",
@@ -75,6 +80,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "qashqai",
+    specs: "Origin: Fars province, south-west Iran\nDate: circa 1930\nSize: 2.58 × 1.62 m\nConstruction: Flatweave (kilim)",
     name: "Qashqai kilim",
     tag: "Antique · c. 1930",
     meta: "2.58 × 1.62 m · flatweave",
@@ -90,6 +96,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "ziegler",
+    specs: "Origin: Sultanabad (Arak), central Iran\nDate: circa 1900\nSize: 4.55 × 3.40 m\nMaterials: Wool pile on a cotton foundation\nCondition: Excellent for size and age",
     name: "Ziegler Sultanabad",
     tag: "Antique · c. 1900",
     meta: "4.55 × 3.40 m · wool on cotton",
@@ -104,6 +111,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "ridgeline",
+    specs: "Made in: Kathmandu valley, Nepal\nSizes: Made to order, up to 6 m\nMaterials: Undyed Tibetan wool with 15% silk\nKnots: 60 per square inch\nLead time: 14–16 weeks\nCertification: GoodWeave",
     name: "Ridgeline, natural",
     tag: "Contemporary · made to order",
     meta: "Any size to 6 m · Tibetan wool & silk",
@@ -120,6 +128,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "meander",
+    specs: "Made in: Tabriz, Iran\nSizes: Made to order, up to 5 m\nMaterials: Handspun, vegetable-dyed wool\nLead time: 12–18 weeks",
     name: "Meander, madder",
     tag: "Contemporary · made to order",
     meta: "Any size to 5 m · handspun wool",
@@ -135,6 +144,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   },
   {
     slug: "plainfold",
+    specs: "Made in: Nepal\nSizes: Made to order, up to 6 m\nMaterials: Handspun undyed wool (seven shades)\nLead time: 10–14 weeks",
     name: "Plainfold, charcoal",
     tag: "Contemporary · made to order",
     meta: "Any size to 6 m · handspun wool",
@@ -148,22 +158,6 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     provenance:
       "Woven to order in Nepal, 10 to 14 weeks. Available in seven undyed shades.",
   },
-];
-
-export interface Spec {
-  k: string;
-  v: string;
-}
-
-export const SPECS: Spec[] = [
-  { k: "Reference", v: "SC-0148" },
-  { k: "Origin", v: "Heriz district, north-west Iran" },
-  { k: "Date", v: "circa 1910" },
-  { k: "Size", v: "3.62 × 2.71 m (11ft 11in × 8ft 11in)" },
-  { k: "Materials", v: "Hand-spun wool pile on a cotton foundation" },
-  { k: "Knot count", v: "Approx. 120,000 per m², symmetrical" },
-  { k: "Condition", v: "Very good; low even pile, one reweave in lower border" },
-  { k: "Pile height", v: "6 mm" },
 ];
 
 export interface Post {

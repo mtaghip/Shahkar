@@ -13,7 +13,7 @@ Prisma + **PostgreSQL** · plain CSS with design tokens.
 
 ```bash
 npm install
-cp .env.example .env      # set DATABASE_URL + AUTH_SECRET (openssl rand -base64 32)
+cp .env.example .env      # set DATABASE1_DATABASE_URL_UNPOOLED + AUTH_SECRET
 npm run db:migrate        # apply migrations to your Postgres database
 npm run db:seed           # load the 9 carpets + the admin account
 npm run dev               # http://localhost:3000
@@ -21,7 +21,7 @@ npm run dev               # http://localhost:3000
 
 ### A local Postgres
 
-Point `DATABASE_URL` at any Postgres instance. To spin one up locally:
+Point `DATABASE1_DATABASE_URL_UNPOOLED` at any Postgres instance. To spin one up locally:
 
 ```bash
 sudo service postgresql start
@@ -49,11 +49,10 @@ npm run build && npm run start
 
 ### Admin
 
-After seeding, sign in at **`/account/login`** with the credentials printed by
-the seed (defaults, override in `.env`):
-
-- **Email:** `admin@shahkarcarpets.co.uk`
-- **Password:** `shahkar-admin`
+Sign in at **`/account/login`**. In local development the seed creates
+`admin@shahkarcarpets.co.uk` / `shahkar-admin` if no admin exists. In production
+the admin comes from `ADMIN_EMAIL` / `ADMIN_PASSWORD` (12+ characters; the dev
+default is refused) — see [DEPLOY.md](DEPLOY.md).
 
 Admins land on **/admin** — the store workspace. Recent additions include:
 

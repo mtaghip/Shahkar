@@ -1,4 +1,7 @@
 import ImageSlot from "@/components/ImageSlot";
+import { countByCategory } from "@/lib/products";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "The House — Shahkar Carpets",
@@ -6,13 +9,18 @@ export const metadata = {
     "Fifty years in England, three hundred on the loom. The story of Shahkar Carpets, from a single room in Tehran to a Cotswolds showroom.",
 };
 
-const stats = [
+const staticStats = [
   { n: "1974", t: "The year the business arrived in England, with eleven carpets" },
-  { n: "148", t: "Pieces currently held, each one seen and bought in person" },
   { n: "6", t: "Workshops we commission new work from, in Iran and Nepal" },
 ];
 
-export default function HousePage() {
+export default async function HousePage() {
+  const { all } = await countByCategory();
+  const stats = [
+    staticStats[0],
+    { n: String(all), t: "Pieces currently held, each one seen and bought in person" },
+    ...staticStats.slice(1),
+  ];
   return (
     <>
       <section

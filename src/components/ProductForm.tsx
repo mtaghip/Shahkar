@@ -111,6 +111,16 @@ export default function ProductForm({
           />
         </label>
 
+        <label className="field field--wide">
+          <span>Specifications — one “Label: value” per line</span>
+          <textarea
+            name="specs"
+            rows={7}
+            defaultValue={product?.specs}
+            placeholder={"Origin: Heriz district, north-west Iran\nDate: circa 1910\nSize: 3.62 × 2.71 m\nMaterials: Wool on cotton\nCondition: Very good"}
+          />
+        </label>
+
         <div className="field--wide" style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
           <label className="checkline">
             <input

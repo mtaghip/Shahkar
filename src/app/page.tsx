@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ImageSlot from "@/components/ImageSlot";
 import ProductCard from "@/components/ProductCard";
-import { getFeatured } from "@/lib/products";
+import { getFeatured, countByCategory } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,8 @@ const homeJournal = [
 ];
 
 export default async function HomePage() {
-  const featured = await getFeatured(3);
+  const [featured, counts] = await Promise.all([getFeatured(3), countByCategory()]);
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
   return (
     <>
       {/* ============ HERO ============ */}
@@ -132,7 +133,7 @@ export default async function HomePage() {
         <div className="section-head">
           <h2>Recently acquired</h2>
           <Link href="/collection" className="section-head__link">
-            View all 148 pieces
+            View all {plural(counts.all, "piece", "pieces")}
           </Link>
         </div>
         <div
@@ -164,13 +165,13 @@ export default async function HomePage() {
           href="/collection?filter=antique"
           caption="Antique — a worn Heriz corner, close crop"
           title="Antique & collectable"
-          meta="1860–1940 · 62 pieces"
+          meta={`1860–1940 · ${plural(counts.antique, "piece", "pieces")}`}
         />
         <CategoryTile
           href="/collection?filter=contemporary"
           caption="Contemporary — flat weave in a bright modern interior"
           title="Contemporary handmade"
-          meta="Woven to order · 86 designs"
+          meta={`Woven to order · ${plural(counts.contemporary, "design", "designs")}`}
         />
       </section>
 

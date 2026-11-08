@@ -34,6 +34,7 @@ model Product {
   category     String // "antique" | "contemporary"
   description  String
   provenance   String
+  specs        String      @default("") // "Label: value" per line
   imageCaption String // placeholder caption / alt text for the main photo
   imageIds     String[]    @default([])
   status       String      @default("ACTIVE")

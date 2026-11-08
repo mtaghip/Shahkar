@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ImageSlot from "@/components/ImageSlot";
 import AddToBagButton from "@/components/AddToBagButton";
-import { SPECS } from "@/lib/catalogue";
+import { parseSpecs } from "@/lib/specs";
 import { getBySlug } from "@/lib/products";
 import { formatPrice } from "@/lib/money";
 
@@ -18,6 +18,10 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const soldOut = product.reserved || product.stock <= 0;
+  const specs = parseSpecs(product.specs);
+  if (product.sku && !specs.some((s) => /^ref/i.test(s.k))) {
+    specs.unshift({ k: "Reference", v: product.sku });
+  }
 
   return (
     <>
@@ -125,8 +129,9 @@ export default async function ProductPage({
             </Link>
           </div>
 
+          {specs.length > 0 && (
           <div style={{ borderTop: "1px solid var(--line)" }}>
-            {SPECS.map((s) => (
+            {specs.map((s) => (
               <div
                 key={s.k}
                 style={{
@@ -155,6 +160,7 @@ export default async function ProductPage({
               </div>
             ))}
           </div>
+          )}
 
           <div
             style={{ marginTop: 36, padding: 26, background: "var(--card-2)" }}

@@ -53,6 +53,8 @@ const anyOrderId=(await db.query('SELECT "id" FROM "Order" LIMIT 1')).rows[0].id
 await db.query('INSERT INTO "Return" ("id","orderId","updatedAt") VALUES ($1,$2,CURRENT_TIMESTAMP)',["ret1",anyOrderId]);
 assert.equal((await db.query('SELECT "status" FROM "Return" WHERE "id" = \'ret1\'')).rows[0].status,"REQUESTED");
 await assert.rejects(db.query('INSERT INTO "Return" ("id","orderId","updatedAt") VALUES ($1,$2,CURRENT_TIMESTAMP)',["ret2","missing-order"]));
+await db.exec(readFileSync(new URL("../prisma/migrations/20261108143824_product_specs/migration.sql",import.meta.url),"utf8"));
+assert.equal((await db.query('SELECT "specs" FROM "Product" WHERE "id" = \'p1\'')).rows[0].specs,"");
 await db.close();
 console.log("PASS PostgreSQL migrations, customer backfill, existing product preservation, draft filtering, email send lock, photo conversion and storage, payments/returns schema");
 
@@ -63,6 +65,14 @@ assert.equal(shippingRate("uk-standard").pricePence,0);
 assert.equal(shippingRate("does-not-exist").id,DEFAULT_SHIPPING_ID);
 assert.equal(shippingRate(null).pricePence,0);
 console.log("PASS shipping rate resolution");
+
+// Product specifications parse from "Label: value" lines.
+const {parseSpecs,cleanSpecs}=load("src/lib/specs.ts");
+assert.equal(JSON.stringify(parseSpecs("Origin: Heriz\nbad line\n: no key\nSize: 3 × 2 m")),JSON.stringify([{k:"Origin",v:"Heriz"},{k:"Size",v:"3 × 2 m"}]));
+assert.equal(parseSpecs("").length,0);
+assert.equal(cleanSpecs("  Date : c. 1910 \n\njunk"),"Date: c. 1910");
+assert.equal(parseSpecs(Array.from({length:40},(_,i)=>"K"+i+": v").join("\n")).length,20);
+console.log("PASS specification parsing");
 
 // Customer return requests enforce paid status and the 14-day window.
 {
@@ -88,7 +98,7 @@ for(const [file,functions] of [
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
  ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction"]]
 ]){
- const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x}});
+ const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x},"@/lib/specs":{cleanSpecs:x=>x}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);
 }
 console.log("PASS unauthenticated admin mutation protection");

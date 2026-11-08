@@ -4,7 +4,9 @@ Open `/admin` and sign in with your existing administrator account.
 
 - **Products:** add or edit a product, upload up to six photos (JPEG/PNG/WebP, 3 MB each), set a cover photo, SKU, stock, price and publishing status. New products start as drafts. Active products appear in the shop; drafts and archived products stay hidden. Archive through the publishing-status selector.
 - **Customers:** save contact details, private notes, tags and marketing permission. Customers created here do not receive a login or an email. Checkout and registration also save customer records. Existing order/customer records are backfilled by the migration.
-- **Orders:** search by reference, name or email, review items and update payment status. Marking an order paid does not charge a card. Cancelling does not restock inventory automatically.
+- **Products — specifications:** each product has its own specification list (one `Label: value` per line, e.g. `Origin: Heriz, north-west Iran`). The SKU is shown as the reference.
+- **Orders:** search by reference, name or email and open **Manage** to: record an offline payment (does not charge a card), cancel an unpaid order (restocks it), refund a paid order (refunds the card through Stripe when it was paid by card, then restocks and emails the customer), and mark it fulfilled with carrier and tracking (emails the customer).
+- **Returns:** customers can request a return from their order page within 14 days. Approve, mark received, then refund — or decline — from the order page or the Returns list.
 - **Email:** write an individual customer-service email, save a draft, review the recipient and message, then confirm sending. No email is sent by saving a draft.
 
 ## Email connection

@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { poundsToPence } from "@/lib/money";
 import { slugify } from "@/lib/products";
+import { cleanSpecs } from "@/lib/specs";
 
 export interface ProductFormState {
   error?: string;
@@ -30,6 +31,7 @@ function readProductForm(formData: FormData) {
     category: category === "contemporary" ? "contemporary" : "antique",
     description: String(formData.get("description") || "").trim(),
     provenance: String(formData.get("provenance") || "").trim(),
+    specs: cleanSpecs(String(formData.get("specs") || "").slice(0, 6000)),
     imageCaption: String(formData.get("imageCaption") || "").trim(),
     stock: Number(formData.get("stock") ?? 1),
     featured: formData.get("featured") === "on",
