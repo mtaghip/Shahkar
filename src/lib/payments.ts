@@ -2,6 +2,7 @@ import "server-only";
 import type Stripe from "stripe";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { invalidateProducts } from "@/lib/products";
 import {
   sendMail,
   orderConfirmationEmail,
@@ -88,6 +89,7 @@ export async function expireOrder(orderId: string): Promise<void> {
     });
     await restockOrderItems(tx, orderId);
   });
+  invalidateProducts();
 }
 
 /** Refund a paid order (marks REFUNDED, restocks) and email the buyer. */
@@ -107,6 +109,7 @@ export async function refundOrder(orderId: string): Promise<void> {
     return updated;
   });
   if (!order) return;
+  invalidateProducts();
   const { subject, text } = orderRefundedEmail(toMailOrder(order));
   await sendMail(order.email, subject, text, `order-refunded-${order.id}`);
 }

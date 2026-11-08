@@ -1,7 +1,7 @@
 :root {
-  /* Type — loaded via <link> to Google Fonts in the root layout */
-  --font-display: "Libre Caslon Display";
-  --font-body: "Archivo";
+  /* Type — self-hosted via next/font in the root layout */
+  --font-display: var(--nf-display, "Libre Caslon Display");
+  --font-body: var(--nf-body, "Archivo");
 
   /* Brand palette — ivory paper & ink, madder-red accent, antique gold */
   --paper: #f3efe7;
@@ -910,4 +910,18 @@ img {
 .ship-option__price {
   font-size: 14px;
   white-space: nowrap;
+}
+
+/* ---------- loading skeletons ---------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, var(--card-2) 37%, var(--card) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
 }

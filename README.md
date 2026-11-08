@@ -116,6 +116,21 @@ src/
     └── actions/         # server actions: auth, cart, checkout, admin, customers, email
 ```
 
+## Performance
+
+- **Images:** storefront photos go through `next/image` (responsive AVIF/WebP,
+  lazy-loaded, fixed aspect ratios so nothing shifts). Published originals are
+  served with `Cache-Control: immutable` — a new upload always gets a new id.
+- **Caching:** catalogue queries are cached and tagged `products`; every admin
+  edit, checkout, cancellation and refund invalidates the tag immediately, so
+  prices and availability are never stale. Cart, checkout and admin always read
+  live data. (Edits made directly in the database, bypassing the app, can take
+  up to five minutes to appear.)
+- **Fonts:** self-hosted at build time with `next/font` — no request to Google.
+- **Photo storage:** photos live in Postgres, which suits a catalogue of a few
+  hundred pieces. When it grows, move them to object storage (e.g. Vercel Blob)
+  by replacing `src/app/api/admin/media` and `src/app/api/media/[id]`.
+
 ## Notes on scope
 
 - **Payments (Stripe):** set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in

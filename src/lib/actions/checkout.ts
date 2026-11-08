@@ -3,6 +3,7 @@
 import { randomBytes } from "crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { invalidateProducts } from "@/lib/products";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getCartDetail, writeCart } from "@/lib/cart";
@@ -124,6 +125,7 @@ export async function placeOrder(
   }
 
   await writeCart([]);
+  invalidateProducts();
   revalidatePath("/");
   revalidatePath("/collection");
 

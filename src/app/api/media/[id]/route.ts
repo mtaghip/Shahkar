@@ -6,5 +6,5 @@ export async function GET(_request: Request, {params}: {params:Promise<{id:strin
  if (!product && (await getCurrentUser())?.role !== "admin") return new Response("Not found",{status:404});
  const media = await prisma.media.findUnique({where:{id}});
  if (!media) return new Response("Not found",{status:404});
- return new Response(new Uint8Array(media.data),{headers:{"Content-Type":"image/webp","X-Content-Type-Options":"nosniff","Cache-Control":product ? "public, max-age=300" : "private, no-store"}});
+ return new Response(new Uint8Array(media.data),{headers:{"Content-Type":"image/webp","X-Content-Type-Options":"nosniff","Cache-Control":product ? "public, max-age=31536000, immutable" : "private, no-store"}});
 }

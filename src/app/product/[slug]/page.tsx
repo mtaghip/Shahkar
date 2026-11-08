@@ -113,7 +113,7 @@ export default async function ProductPage({
       >
         {/* images */}
         <div style={{ borderRight: "1px solid var(--line)" }}>
-          <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="1/1">
+          <ImageSlot src={product.imageIds[0] ? "/api/media/"+product.imageIds[0] : undefined} caption={product.imageCaption || product.name} ratio="1/1" sizes="(max-width: 900px) 100vw, 50vw" priority>
             {soldOut ? <span className="tag-reserved">Reserved</span> : null}
           </ImageSlot>
           <div
@@ -123,7 +123,7 @@ export default async function ProductPage({
               borderTop: "1px solid var(--line)",
             }}
           >
-            {product.imageIds.slice(1).map((id,index)=><a key={id} href={"/api/media/"+id} target="_blank" rel="noreferrer"><ImageSlot src={"/api/media/"+id} caption={product.name+" — photo "+(index+2)} ratio="1/1"/></a>)}
+            {product.imageIds.slice(1).map((id,index)=><a key={id} href={"/api/media/"+id} target="_blank" rel="noreferrer"><ImageSlot src={"/api/media/"+id} caption={product.name+" — photo "+(index+2)} ratio="1/1" sizes="(max-width: 900px) 33vw, 17vw"/></a>)}
           </div>
         </div>
 

@@ -115,7 +115,7 @@ for(const [file,functions] of [
  ["src/lib/actions/email.ts",["saveEmail","sendEmail"]],
  ["src/lib/actions/admin.ts",["createProductAction","updateProductAction","deleteProductAction","setOrderStatusAction","markOrderPaidAction","cancelOrderAction","refundOrderAction","fulfilOrderAction","processReturnAction"]]
 ]){
- const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x},"@/lib/specs":{cleanSpecs:x=>x},"@/lib/audit":{audit:async()=>{}}});
+ const actions=load(file,{"@/lib/auth":{requireAdmin:async()=>{throw new Error("ADMIN_REQUIRED");}},"@/lib/prisma":{prisma:new Proxy({},{get(){throw new Error("DB accessed before authentication");}})},"@/lib/admin-validation":{validEmail,emailConfigured:()=>false},"next/navigation":{},"next/cache":{},"@/lib/money":{poundsToPence},"@/lib/products":{slugify:x=>x,invalidateProducts:()=>{}},"@/lib/specs":{cleanSpecs:x=>x},"@/lib/audit":{audit:async()=>{}}});
  for(const name of functions)await assert.rejects(actions[name](null,{},new FormData()),/ADMIN_REQUIRED/);
 }
 console.log("PASS unauthenticated admin mutation protection");

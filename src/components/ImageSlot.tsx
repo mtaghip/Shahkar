@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
 
 interface ImageSlotProps {
@@ -7,14 +8,18 @@ interface ImageSlotProps {
   ratio?: string;
   className?: string;
   style?: CSSProperties;
-  /** Overlay content rendered above the placeholder (badges, scrims). */
+  /** Responsive sizes hint for the optimiser. */
+  sizes?: string;
+  /** Load eagerly — use for the largest above-the-fold image. */
+  priority?: boolean;
+  /** Overlay content rendered above the image (badges, scrims). */
   children?: ReactNode;
 }
 
 /**
- * Drop-in image placeholder, faithful to the design's <image-slot>: a labelled
- * empty state on the warm card ground with a dashed ring. Replace with a real
- * <Image> (or a background photo) when photography is available.
+ * A product/editorial image in a fixed-ratio frame. With a src it renders an
+ * optimised next/image (responsive AVIF/WebP, lazy-loaded, no layout shift);
+ * without one it shows the design's labelled placeholder.
  */
 export default function ImageSlot({
   src,
@@ -22,19 +27,33 @@ export default function ImageSlot({
   ratio,
   className,
   style,
+  sizes = "(max-width: 700px) 100vw, (max-width: 1200px) 50vw, 33vw",
+  priority = false,
   children,
 }: ImageSlotProps) {
   const wrapStyle: CSSProperties = {
     position: "relative",
+    overflow: "hidden",
     background: "var(--card)",
     ...(ratio ? { aspectRatio: ratio } : { height: "100%" }),
     ...style,
   };
   return (
     <div className={className} style={wrapStyle}>
-      {src ? <img src={src} alt={caption} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/> : <div className="imgslot" role="img" aria-label={caption}>
-        <span className="imgslot__cap">{caption}</span>
-      </div>}
+      {src ? (
+        <Image
+          src={src}
+          alt={caption}
+          fill
+          sizes={sizes}
+          priority={priority}
+          style={{ objectFit: "cover" }}
+        />
+      ) : (
+        <div className="imgslot" role="img" aria-label={caption}>
+          <span className="imgslot__cap">{caption}</span>
+        </div>
+      )}
       {children}
     </div>
   );

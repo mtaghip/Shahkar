@@ -47,6 +47,9 @@ model Product {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   orderItems   OrderItem[]
+
+  @@index([status, category])
+  @@index([imageIds], type: Gin) // speeds up "which product owns this photo?"
 }
 
 model Order {

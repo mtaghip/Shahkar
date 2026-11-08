@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { poundsToPence } from "@/lib/money";
-import { slugify } from "@/lib/products";
+import { slugify, invalidateProducts } from "@/lib/products";
 import { cleanSpecs } from "@/lib/specs";
 import { audit } from "@/lib/audit";
 
@@ -59,6 +59,7 @@ export async function createProductAction(
   if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
   const created = await prisma.product.create({ data });
   await audit(admin, "product.create", created.id, data.name);
+  invalidateProducts();
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
@@ -88,6 +89,7 @@ export async function updateProductAction(
   if (!Number.isSafeInteger(data.pricePence) || data.pricePence > 2147483647 || !Number.isSafeInteger(data.stock) || data.stock < 0 || data.stock > 100000) return {error:"Enter valid price and whole-number stock (0–100,000)."};
   await prisma.product.update({ where: { id }, data });
   await audit(admin, "product.update", id, `${data.name} · ${data.status}`);
+  invalidateProducts();
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
@@ -112,6 +114,7 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
     });
     await audit(admin, "product.retire", id, "has order history; hidden instead of deleted");
   }
+  invalidateProducts();
   revalidatePath("/admin");
   revalidatePath("/collection");
   revalidatePath("/");
@@ -130,6 +133,7 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
 }
 
 function revalidateOrder(id: string) {
+  invalidateProducts(); // payments/cancels/refunds change stock
   revalidatePath("/admin");
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
