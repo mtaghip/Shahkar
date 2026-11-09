@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { shrinkForUpload } from "@/lib/shrink-image";
 export default function ProductMedia({
   initial = [],
   onBusy,
@@ -10,6 +11,7 @@ export default function ProductMedia({
   const [ids, setIds] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
   async function upload(files: FileList | null) {
     if (!files || busy) return;
     setError("");
@@ -20,8 +22,10 @@ export default function ProductMedia({
     setBusy(true);
     onBusy(true);
     try {
-      for (const file of Array.from(files)) {
-        if (file.size > 3_000_000) throw new Error("Each photo must be under 3 MB.");
+      const list = Array.from(files);
+      for (const [i, original] of list.entries()) {
+        setStatus(list.length > 1 ? `Optimising photo ${i + 1} of ${list.length}…` : "Optimising photo…");
+        const file = await shrinkForUpload(original);
         const body = new FormData();
         body.set("file", file);
         const response = await fetch("/api/admin/media", { method: "POST", body });
@@ -33,6 +37,7 @@ export default function ProductMedia({
       setError(error instanceof Error ? error.message : "Upload failed. Please retry.");
     } finally {
       setBusy(false);
+      setStatus("");
       onBusy(false);
     }
   }
@@ -48,11 +53,11 @@ export default function ProductMedia({
         }}
       >
         <label className="field">
-          <span>{busy ? "Uploading and optimising…" : "Drop photos here or choose files"}</span>
+          <span>{busy ? status || "Uploading…" : "Drop photos here or choose files"}</span>
           <input
             aria-label="Upload product photos"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*,.heic,.heif"
             multiple
             disabled={busy || ids.length >= 6}
             onChange={(e) => {
@@ -61,7 +66,10 @@ export default function ProductMedia({
             }}
           />
         </label>
-        <small>Up to six JPEG, PNG or WebP photos, 3 MB each. The first photo is the cover.</small>
+        <small>
+          Up to six photos, straight from your phone or camera — they&apos;re resized automatically. The first
+          photo is the cover.
+        </small>
       </div>
       <input type="hidden" name="imageIds" value={ids.join(",")} />
       <div className="media-list">

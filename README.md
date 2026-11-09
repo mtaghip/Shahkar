@@ -59,7 +59,7 @@ Admins land on **/admin** — the store workspace. Recent additions include:
 - Shopify-style dashboard with sales, order, product and customer summaries.
 - Product catalogue search, SKU, stock, featured/reserved flags and draft,
   active or archived publishing. New products start as drafts, hidden from the shop.
-- Upload up to six JPEG, PNG or WebP product photos; they are optimised to WebP
+- Upload up to six product photos straight from a phone or camera (resized in the browser first, so large originals and Safari HEIC work); they are optimised to WebP
   and the first image is the cover photo.
 - Customer CRM with profiles, tags, private notes, consent record, order history
   and paid lifetime spend.

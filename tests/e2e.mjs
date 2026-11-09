@@ -129,6 +129,36 @@ try {
   await shopper.keyboard.press("Escape");
   ok("lightbox closes with Esc", !(await shopper.$eval("dialog.lightbox", (d) => d.open)));
 
+  // Phone-sized originals are shrunk in the browser before upload.
+  await admin.goto(B + "/admin/products");
+  await admin.click('a:has-text("Ziegler Sultanabad")');
+  await admin.waitForURL("**/edit");
+  const big = await sharp({
+    create: { width: 4032, height: 3024, channels: 3, noise: { type: "gaussian", mean: 128, sigma: 60 } },
+  })
+    .jpeg({ quality: 100 })
+    .toBuffer();
+  ok("test photo is larger than the 3 MB server limit", big.length > 3_000_000, `${big.length} bytes`);
+  await admin.setInputFiles('input[type="file"]', {
+    name: "IMG_0001.jpg",
+    mimeType: "image/jpeg",
+    buffer: big,
+  });
+  await admin.waitForFunction(() => document.querySelectorAll(".media-list figure").length === 3, null, {
+    timeout: 60000,
+  });
+  ok("large phone photo is resized in the browser and accepted", true);
+  await admin.setInputFiles('input[type="file"]', {
+    name: "broken.heic",
+    mimeType: "image/heic",
+    buffer: Buffer.from("not really an image"),
+  });
+  await admin.waitForSelector(".authform__error");
+  ok(
+    "unreadable photo gives a clear message",
+    /Export it as a JPEG/.test(await admin.textContent(".authform__error"))
+  );
+
   step("Checkout, discount, VAT-ready totals, invoice");
   const buyer = await newPage();
   await addToBag(buyer, "meander");
